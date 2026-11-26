@@ -95,12 +95,13 @@
   const field = (label, input) => h('label', { class: 'field' }, label, input);
 
   // ---------- pieces ----------
-  const hero = ({ img, pos, hh, title, sub, back, action, tag, size }) => h('div', { class: 'hero', style: `--hh:${hh || 400}px;--pos:${pos || '76% 25%'}` },
+  const hero = ({ img, pos, hh, title, sub, back, action, tag, size, hint }) => h('div', { class: 'hero', style: `--hh:${typeof hh === 'string' ? hh : (hh || 400) + 'px'};--pos:${pos || '76% 25%'}` },
     h('img', { src: img, alt: '' }),
     back && h('a', { class: 'circle', href: back, 'aria-label': 'Back' }, ic('aback')),
     tag && h('span', { class: 'pill tag' }, tag),
     action,
-    h('div', { class: 'hero-text' }, h('h1', { class: 'hero-title', style: size ? `font-size:${size}` : null }, title), sub && h('p', { class: 'hero-sub' }, sub)));
+    h('div', { class: 'hero-text' }, h('h1', { class: 'hero-title', style: size ? `font-size:${size}` : null }, title), sub && h('p', { class: 'hero-sub' }, sub)),
+    hint && h('span', { class: 'swipe', 'aria-hidden': 'true' }, ic('achev')));
   const stats = (rows) => h('div', { class: 'stats' }, rows.map(([v, l]) => h('div', { class: 'stat' }, h('b', {}, v), h('span', {}, l))));
   const pillBtn = (label, icon, onclick) => h('button', { class: 'pill', onclick, type: 'button' }, icon && ic(icon), label);
   const theme = (cls, ...kids) => { $('#screen').className = cls; return h('div', {}, kids); };
@@ -115,12 +116,13 @@
     const real = S.dogs.filter((d) => !d.sample).length;
     const tile = (href, cls, icon, name, sub) => h('a', { class: 'tile ' + cls, href }, ic(icon), h('span', {}, h('b', {}, name), h('i', {}, sub)));
     return [
-      hero({ img: 'photos/dog-golden-sitting.webp', pos: '50% 12%', hh: 440, size: 'clamp(40px,12.5vw,54px)', title: ['Welcome back,', h('br'), `${(S.profile.name || '').split(' ')[0] || '[NAME]'}.`], sub: 'Your dog is on the list.' }),
+      h('div', { class: 'home-logo' }, h('img', { src: 'logos/leons-logo-primary-dark.svg', alt: 'LEON’S Hotel & Day Club' })),
+      hero({ img: 'photos/dog-golden-sitting.webp', pos: '50% 12%', hh: 'calc(100dvh - 86px - 84px)', hint: true, size: 'clamp(40px,12.5vw,54px)', title: ['Welcome back,', h('br'), `${(S.profile.name || '').split(' ')[0] || '[NAME]'}.`], sub: 'Your dog is on the list.' }),
       stats([[String(S.dogs.length), 'Dogs'], [nextDay(), 'Next visit'], [String(S.unread || 0), 'Unread']]),
       h('div', { class: 'body' },
         h('div', { class: 'tiles' },
           tile('#/book', 'forest', 'acal', 'Book a visit', 'We’ll hold a spot.'),
-          tile('#/today', 'navy', 'asun', 'Today at the club', 'See how the day is going.'),
+          tile('#/today', 'mid', 'asun', 'Today at the club', 'See how the day is going.'),
           tile('#/dogs', '', 'adog', 'My dogs', `${real || S.dogs.length} on the list.`),
           tile('#/messages', '', 'amsg', 'Messages', 'Straight from Leon’s team.')),
         S.requests.length ? [h('div', { class: 'sec-head', style: 'margin-top:22px' }, h('h2', {}, 'Your requests')), h('div', { class: 'rows', style: 'margin-top:0' }, S.requests.map((r) => h('div', { class: 'row plain' }, ic(r.type === 'day' ? 'asun' : 'abed'), h('span', { class: 'grow' }, h('b', {}, `${r.type === 'day' ? 'Day Club' : 'Hotel Stay'} · ${r.dog}`), h('i', {}, `${day(r.checkin)}${r.checkout ? ' – ' + day(r.checkout) : ''} · ${r.status === 'approved' ? 'confirmed' : r.status === 'declined' ? 'declined' : 'requested'}`)))))] : null,
@@ -384,7 +386,7 @@
 
   // ---------- router ----------
   const SCREENS = {
-    home: ['t-cream', home, 'Home'], dogs: ['t-cream', dogs, 'Dogs'], dog: ['t-white', (a) => profile(a), 'Dogs'], book: ['t-cream', book, 'Book'], booked: ['t-cream', booked, 'Book'],
+    home: ['t-navy', home, 'Home'], dogs: ['t-cream', dogs, 'Dogs'], dog: ['t-white', (a) => profile(a), 'Dogs'], book: ['t-cream', book, 'Book'], booked: ['t-cream', booked, 'Book'],
     messages: ['t-forest', messages, 'Messages'], thread: ['t-forest', thread, 'Messages'], today: ['t-navy', today, 'Home'],
     photos: ['t-navy', photos, 'Home'],
     desk: ['t-cream', deskToday, 'dToday'], 'desk-requests': ['t-cream', deskRequests, 'dRequests'], 'desk-dog': ['t-cream', (a) => deskDog(a), 'dToday'], 'desk-thread': ['t-forest', (a) => thread(a || 'team'), 'dMessages'], account: ['t-cream', account, 'Account'],
@@ -395,6 +397,7 @@
     if (r === 'desk') { if (arg === 'requests') r = 'desk-requests'; else if (arg === 'dog') { r = 'desk-dog'; arg = arg2; } else if (arg === 'messages') { r = 'desk-thread'; arg = 'team'; } }
     const desk = r.startsWith('desk');
     document.body.classList.toggle('desk', desk);
+    document.body.classList.toggle('home', r === 'home');
     const [cls, fn, tab] = SCREENS[r] || SCREENS.home;
     $('#screen').className = cls;
     $('#screen').replaceChildren(...[fn(arg)].flat().filter(Boolean));
