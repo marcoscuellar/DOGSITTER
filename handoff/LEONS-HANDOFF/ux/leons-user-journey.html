@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LEON’S | User Journey</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{--ink:#0E0E0E;--bone:#EDE8DF;--cognac:#8A4A1F;--tan:#D08A4E;--white:#FAF8F4;--line:#0E0E0E;--soft:#5E574C;
+--display:"Anton","Arial Narrow",Impact,sans-serif;--serif:"Newsreader",Georgia,serif;--mono:"IBM Plex Mono",ui-monospace,Menlo,monospace}
+*{box-sizing:border-box}
+body{margin:0;background:#FFFFFF;color:var(--ink);font:17px/1.55 var(--serif)}
+main{max-width:1040px;margin:auto;padding:48px 24px 64px}
+h1,h2,h3{font-family:var(--display);font-weight:400;text-transform:uppercase;line-height:.95;margin:0}
+h1{font-size:clamp(72px,14vw,150px);letter-spacing:.01em}
+h2{font-size:40px;margin:56px 0 18px;display:flex;gap:14px;align-items:baseline}
+h2 span{font:500 13px var(--mono);letter-spacing:.2em;color:var(--cognac)}
+h3{font-size:22px;margin:0 0 6px}
+p{margin:0 0 12px}
+.eyebrow,.label{font:500 12px var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--cognac)}
+.sub{font-style:italic;font-size:22px}
+header{background:var(--ink);color:var(--bone);padding:40px;margin:-48px -24px 0}
+header .eyebrow{color:var(--tan)}
+header .lede{font:400 13px var(--mono);letter-spacing:.3em;text-transform:uppercase;color:var(--tan);margin-top:10px}
+header h2{color:var(--bone);margin:32px 0 8px;font-size:32px}
+.print{float:right;font:400 18px var(--display);letter-spacing:.04em;text-transform:uppercase;background:var(--cognac);color:var(--bone);border:0;padding:0 22px;min-height:52px;cursor:pointer}
+.print:focus-visible{outline:3px solid var(--tan);outline-offset:3px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.panel{background:var(--white);border:2px solid var(--line);padding:22px}
+.panel.dark{background:var(--ink);color:var(--bone);border-color:var(--ink)}
+.panel.dark .label{color:var(--tan)}
+ol{padding:0;margin:0;list-style:none;counter-reset:s}
+ol li{counter-increment:s;background:var(--white);border:2px solid var(--line);padding:16px 18px;margin:0 0 12px;break-inside:avoid}
+ol li:before{content:counter(s,decimal-leading-zero);display:block;font:500 12px var(--mono);letter-spacing:.2em;color:var(--cognac);margin-bottom:4px}
+section>h3{font-size:30px;margin-bottom:14px}
+table{width:100%;border-collapse:collapse;background:var(--white);border:2px solid var(--line)}
+th,td{text-align:left;padding:12px 14px;border-bottom:1px solid #CFC8BA;vertical-align:top}
+th{background:var(--ink);color:var(--bone);font:500 12px var(--mono);letter-spacing:.18em;text-transform:uppercase}
+.tag{font:500 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;padding:4px 8px;border:1.5px solid var(--ink);white-space:nowrap;display:inline-block}
+.tag.go{background:var(--ink);color:var(--bone)}.tag.plan{background:var(--cognac);color:var(--bone);border-color:var(--cognac)}
+/* phones */
+.phone{max-width:320px;width:100%;margin:auto;border:8px solid #2A2A2A;border-radius:36px;background:#FFFFFF;overflow:hidden;display:flex;flex-direction:column;min-height:560px}
+.phone .in{padding:26px 20px 16px;flex:1}
+.phone h3{font-size:34px;margin:6px 0 2px}
+.phone .tile{background:var(--white);border:2px solid var(--ink);padding:14px;margin:12px 0}
+.phone .tile.dark{background:var(--ink);color:var(--bone);border-color:var(--ink)}
+.phone .tile.dark .label{color:var(--tan)}
+.phone .tile b{display:block;font:400 24px/1 var(--display);text-transform:uppercase;margin:4px 0}
+.phone .act{background:var(--cognac);color:var(--bone);text-align:center;font:400 17px var(--display);letter-spacing:.04em;text-transform:uppercase;padding:14px;margin-top:10px}
+.phone .act.out{background:transparent;color:var(--ink);border:2px solid var(--ink)}
+.phone nav{background:var(--ink);color:var(--bone);display:flex;justify-content:space-around;padding:16px 6px;font:500 10px var(--mono);letter-spacing:.1em;text-transform:uppercase}
+.phone nav span:first-child{color:var(--tan)}
+.swatches{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.swatches div{padding:18px 16px 14px;border:2px solid var(--ink);font:500 12px/1.6 var(--mono);letter-spacing:.1em;min-height:120px;display:flex;flex-direction:column;justify-content:flex-end}
+.swatches b{font:400 26px var(--display);letter-spacing:0;text-transform:uppercase}
+.old{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
+.old div{padding:8px 10px;font:12px var(--mono);border:1px solid #aaa}
+.note{border-left:4px solid var(--cognac);background:var(--white);padding:14px 18px;margin-top:16px}
+small,.muted{color:var(--soft)}
+footer{margin-top:48px;border-top:2px solid var(--ink);padding-top:16px;font-size:14px}
+a{color:var(--cognac)}
+@media(max-width:700px){.grid,.swatches,.old{grid-template-columns:1fr}header{padding:28px 20px}h2{font-size:32px}}
+@media print{body{background:#fff;font-size:11pt}main{padding:0;max-width:none}header{margin:0}.print{display:none}h2{break-after:avoid}.panel,.phone,tr,ol li{break-inside:avoid}*{print-color-adjust:exact;-webkit-print-color-adjust:exact}@page{size:letter;margin:.55in}}
+</style>
+<main>
+<header>
+<button class="print" onclick="window.print()">Print / Save PDF</button>
+<p class="eyebrow">Product experience · UX handoff</p>
+<h1>LEON’S</h1>
+<p class="lede">Dog hotel &amp; day club · Uptown, Chicago</p>
+<h2>One app. Two user experiences.</h2>
+<p class="sub">Complete user journey, care workflows and design decisions.</p>
+</header>
+
+<h2><span>01</span>App architecture</h2>
+<div class="grid">
+<div class="panel"><p class="label">Experience A</p><h3>Pet owner</h3>Home · My dogs · Bookings &amp; stays · Care instructions · Messages · Account &amp; payments</div>
+<div class="panel dark"><p class="label">Experience B</p><h3>Leon / Care desk</h3>Today · Dogs in care · Visit schedule · Booking requests · Care updates · Business settings</div>
+</div>
+
+<h2><span>02</span>Complete user journeys</h2>
+<div class="grid">
+<section><h3>Pet owner</h3><ol>
+<li><h3>Welcome &amp; onboarding</h3>Register household, contact and emergency information; complete applicable care agreements.</li>
+<li><h3>Add a dog</h3>Create Luna’s profile with photo, breed, age, personality, preferences, medication and feeding instructions. Add multiple dogs.</li>
+<li><h3>Home dashboard</h3>See upcoming bookings, next visit, pets and messages.</li>
+<li><h3>Book a service</h3>Choose walking, Day Club or Hotel Stay, dates and available arrival/pickup windows.</li>
+<li><h3>Booking request</h3>Submit request; Leon reviews it. Payment and confirmation follow booking rules.</li>
+<li><h3>Prepare for care</h3>Pack the bag, complete checklist, add medication, feeding and bedtime instructions and reference photos.</li>
+<li><h3>During the visit</h3>Receive walk updates, photos, care notes, messages and notifications.</li>
+<li><h3>Visit completed</h3>Access daily recaps, previous walks, overnight stays and booking history.</li>
+</ol></section>
+<section><h3>Leon / Service provider</h3><ol>
+<li><h3>Business setup</h3>Configure services, availability, drop-off windows and business settings.</li>
+<li><h3>Booking request</h3>Review the dog profile and approve or decline the request.</li>
+<li><h3>Today’s dashboard</h3>See dogs in care, upcoming visits and responsibilities.</li>
+<li><h3>Visit schedule</h3>Open separate schedules for walks, arrivals, pickups and overnight stays.</li>
+<li><h3>Open dog card</h3>Review instructions; Start Walk and End Walk inside the individual dog card. No GPS tracking.</li>
+<li><h3>Care checklist</h3>Record meals, walks and medication; add photos, notes or concerns.</li>
+<li><h3>Communicate</h3>Send owner updates and messages; keep private notes separate.</li>
+<li><h3>Complete visit</h3>Close out care, preserve history and provide an owner summary.</li>
+</ol></section>
+</div>
+
+<h2><span>03</span>Mobile wireframes</h2>
+<div class="grid">
+<div class="phone"><div class="in">
+<p class="eyebrow">LEON’S</p><h3>Welcome home.</h3><p class="sub" style="font-size:18px">Good care starts here.</p>
+<div class="tile dark"><span class="label">Your next visit</span><b>Luna’s stay</b><span style="font-style:italic">View booking →</span></div>
+<p class="label" style="margin-top:18px">My dogs</p>
+<div class="tile"><b>Luna</b><span style="font-style:italic">View profile →</span></div>
+<div class="act">Book a stay</div>
+</div><nav><span>Home</span><span>Bookings</span><span>Pets</span><span>Messages</span><span>Account</span></nav></div>
+<div class="phone"><div class="in">
+<p class="eyebrow">LEON’S / Care desk</p><h3>Today.</h3><p class="sub" style="font-size:18px">Your day at a glance</p>
+<div class="tile dark"><span class="label">In care now</span><b>3 dogs · 2 requests</b></div>
+<p class="label" style="margin-top:18px">Today’s walks</p>
+<div class="tile"><b>Luna</b>Morning walk<br><small style="font-style:italic">View care instructions</small><div class="act">Start walk</div></div>
+<span style="font-style:italic">View full schedule →</span>
+</div><nav><span>Today</span><span>Schedule</span><span>Dogs</span><span>Messages</span><span>More</span></nav></div>
+</div>
+<p><small>Illustrative wireframes and sample counts; not final approved screens.</small></p>
+
+<h2><span>04</span>Shared booking &amp; care workflow</h2>
+<table><thead><tr><th>Pet owner</th><th>System</th><th>Leon</th></tr></thead><tbody>
+<tr><td>Requests booking</td><td>Sends notification</td><td>Reviews request</td></tr>
+<tr><td>Receives confirmation</td><td>Updates booking</td><td>Approves request</td></tr>
+<tr><td>Adds care instructions</td><td>Saves dog profile</td><td>Reviews instructions</td></tr>
+<tr><td>Drops off dog</td><td>Updates visit status</td><td>Checks dog in</td></tr>
+<tr><td>Receives walk update</td><td>Records activity</td><td>Starts/ends walk</td></tr>
+<tr><td>Receives care updates</td><td>Maintains care log</td><td>Completes checklist</td></tr>
+<tr><td>Picks up dog</td><td>Preserves history</td><td>Completes visit</td></tr>
+</tbody></table>
+
+<h2><span>05</span>Decisions &amp; open items</h2>
+<table><thead><tr><th>Feature</th><th>Status</th></tr></thead><tbody>
+<tr><td>One app, two experiences; multiple dog profiles; editable care instructions</td><td><span class="tag go">Established direction</span></td></tr>
+<tr><td>Separate visit schedule; walk controls inside dog cards; two-way messaging; no GPS tracking</td><td><span class="tag go">Established direction</span></td></tr>
+<tr><td>Stripe payments and push notifications</td><td><span class="tag plan">Planned</span></td></tr>
+<tr><td>Waivers, compliance, pricing and cancellation rules</td><td><span class="tag">Needs review</span></td></tr>
+<tr><td>Detailed overnight stay workflow</td><td><span class="tag">Needs refinement</span></td></tr>
+</tbody></table>
+
+<h2><span>06</span>Brand direction</h2>
+<p class="sub">Direction 02 — The Club. Big name, quiet voice. Your dog is on the list.</p>
+<div class="swatches">
+<div style="background:#0E0E0E;color:#EDE8DF"><b>Ink</b>#0E0E0E · 55%</div>
+<div style="background:#EDE8DF"><b>Bone</b>#EDE8DF · 30%</div>
+<div style="background:#8A4A1F;color:#EDE8DF"><b>Cognac</b>#8A4A1F · 10%</div>
+<div style="background:#D08A4E"><b>Tan</b>#D08A4E · 5% · on Ink only</div>
+</div>
+<p style="margin-top:14px">Type: Anton (headlines, uppercase) · Newsreader (body, italic sub lines) · IBM Plex Mono (labels). Square corners, 2px ink borders, 52px tap targets. Full rules: LEONS-BRAND-KIT → BRAND.md and the brand book PDF.</p>
+<div class="note"><p class="label">Previous direction (kept for reference)</p>
+<p style="margin:0">Premium hospitality, generous white space, clean navigation and individual care cards. Earlier reconstructed palette, now replaced by The Club:</p>
+<div class="old"><div style="background:#193e32;color:#fff">Forest #193E32</div><div style="background:#f6f3eb">Cream #F6F3EB</div><div style="background:#b4a391">Taupe #B4A391</div><div style="background:#a06a42;color:#fff">Cognac #A06A42</div></div>
+</div>
+
+<footer><small>Consolidated from prior design discussions. Wireframes are illustrative, not final approval. Restyled to Direction 02 — The Club. Original workspace: <a href="https://chatgpt.com/space/page_b30ad769f5388191a4ecfae2d50d17b1">App UX &amp; Screen Plan</a> (link not independently verified).</small></footer>
+</main>
+</html>

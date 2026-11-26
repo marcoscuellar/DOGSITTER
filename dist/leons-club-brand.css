@@ -1,0 +1,91 @@
+/* ============================================================
+   LEON'S — THE CLUB · Brand tokens for the app
+   Hotel & day club for dogs · Uptown, Chicago
+   Drop this into the project and tell Claude Code:
+   "Use leons-club-brand.css as the design system for the app."
+   ============================================================ */
+
+@import url("https://fonts.googleapis.com/css2?family=Anton&family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&family=IBM+Plex+Mono:wght@400;500&display=swap");
+
+:root {
+  /* ---- Color (use by roughly this much) ---- */
+  --leons-ink:    #0E0E0E; /* 55% — grounds, main type */
+  --leons-bone:   #EDE8DF; /* 30% — grounds, type on ink */
+  --leons-cognac: #8A4A1F; /* 10% — primary buttons, accents (text on bone OK) */
+  --leons-tan:    #D08A4E; /*  5% — small labels ON INK ONLY (fails contrast on bone) */
+  --leons-white:  #FFFFFF; /* inputs and cards on bone */
+  --leons-ink-2:  #161616; /* raised surface on ink */
+  --leons-line:   #2A2A2A; /* borders on ink */
+
+  /* ---- Type ---- */
+  --leons-font-display: "Anton", "Impact", sans-serif;        /* SAY IT BIG — always uppercase */
+  --leons-font-serif:   "Newsreader", Georgia, serif;          /* say it softly — italic for sub copy */
+  --leons-font-mono:    "IBM Plex Mono", ui-monospace, monospace; /* LABELS & DETAILS — uppercase, tracked */
+
+  --leons-text-hero:  clamp(56px, 12vw, 120px);
+  --leons-text-h1:    48px;
+  --leons-text-h2:    32px;
+  --leons-text-h3:    22px;
+  --leons-text-body:  17px;
+  --leons-text-small: 14px;
+  --leons-text-label: 11px;
+  --leons-track-label: 0.2em;
+
+  /* ---- Space & shape ---- */
+  --leons-space-1: 4px;
+  --leons-space-2: 8px;
+  --leons-space-3: 12px;
+  --leons-space-4: 16px;
+  --leons-space-5: 24px;
+  --leons-space-6: 32px;
+  --leons-space-7: 48px;
+  --leons-radius: 0px;        /* the club is square-cornered */
+  --leons-radius-icon: 26px;  /* app icon only */
+  --leons-border: 2px solid var(--leons-ink);
+  --leons-tap: 52px;          /* min button height */
+}
+
+/* ---- Type helpers ---- */
+.leons-display { font-family: var(--leons-font-display); text-transform: uppercase; line-height: 0.95; letter-spacing: 0.01em; }
+.leons-sub     { font-family: var(--leons-font-serif); font-style: italic; }
+.leons-label   { font-family: var(--leons-font-mono); font-size: var(--leons-text-label); letter-spacing: var(--leons-track-label); text-transform: uppercase; }
+body           { font-family: var(--leons-font-serif); font-size: var(--leons-text-body); background: var(--leons-bone); color: var(--leons-ink); }
+
+/* ---- Buttons ---- */
+.leons-btn {
+  min-height: var(--leons-tap); padding: 0 var(--leons-space-5);
+  font-family: var(--leons-font-display); font-size: 18px; letter-spacing: 0.04em; text-transform: uppercase;
+  border-radius: var(--leons-radius); cursor: pointer;
+}
+.leons-btn--primary   { background: var(--leons-cognac); color: var(--leons-bone); border: none; }
+.leons-btn--secondary { background: transparent; color: var(--leons-ink); border: var(--leons-border); }
+.leons-btn--on-ink    { background: transparent; color: var(--leons-bone); border: 2px solid var(--leons-bone); }
+.leons-btn:focus-visible { outline: 3px solid var(--leons-tan); outline-offset: 3px; }
+
+/* ---- Cards ---- */
+.leons-card        { background: var(--leons-white); border: var(--leons-border); padding: var(--leons-space-4); }
+.leons-card--ink   { background: var(--leons-ink); color: var(--leons-bone); border: none; padding: var(--leons-space-5); }
+.leons-card--ink .leons-label { color: var(--leons-tan); }
+
+/* ---- Patterns (CSS versions) ---- */
+/* 02 · The Hatch — the diagonal lines from the dog's ears */
+.leons-pattern-hatch {
+  background-color: var(--leons-ink);
+  background-image: repeating-linear-gradient(45deg, var(--leons-bone) 0 3.5px, var(--leons-ink) 3.5px 10px);
+}
+/* 03 · The Awning — ink/bone stripe with a cognac pinstripe */
+.leons-pattern-awning {
+  background-image: repeating-linear-gradient(90deg,
+    var(--leons-ink) 0 46px, var(--leons-cognac) 46px 50px,
+    var(--leons-bone) 50px 96px);
+}
+/* 01 · The Monogram — use the SVG tile (L + dog head + tan dots) from the
+   design canvas; in the app, keep it dark (L and head in #3A3530 on ink)
+   so it sits behind content without fighting it. */
+/* 04 · The Guest List — repeating "LEON'S · GOOD DOGS ONLY · UPTOWN" in Anton,
+   rows offset; marketing and social only, not app UI. */
+
+/* ---- Voice (for UI copy) ----
+   SAY:  "Your dog is on the list."  "Checked in. Suite 04."  "See you at the club."
+   SKIP: puns, "fur-babies", exclamation points, emoji.
+   Big words in Anton caps; the warm part in Newsreader italic underneath. */

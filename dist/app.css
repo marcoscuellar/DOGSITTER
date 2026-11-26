@@ -1,0 +1,113 @@
+/* LEON'S app layout. All brand colors and type come from leons-club-brand.css.
+   The three extra surfaces below come from START-HERE.md and ClubAppPhotos.html. */
+:root{
+  --card:#FAF8F4;      /* near-white card surface */
+  --photo:#4A4540;     /* dark placeholder panel that describes the shot */
+  --rule:#D6CFC2;      /* divider inside a card */
+}
+*{box-sizing:border-box;border-radius:0}
+html{background:var(--leons-white)}
+body{margin:0;background:var(--leons-white);color:var(--leons-ink);font-family:var(--leons-font-serif);font-size:var(--leons-text-body);line-height:1.5}
+h1,h2,h3,p{margin:0}
+button,a{-webkit-tap-highlight-color:transparent}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--leons-cognac);outline-offset:3px}
+.on-ink :focus-visible,.tabs :focus-visible,.hero :focus-visible{outline-color:var(--leons-tan)}
+
+.app{width:100%;max-width:480px;min-height:100vh;min-height:100dvh;margin:0 auto;display:flex;flex-direction:column;background:var(--leons-white);border-inline:2px solid var(--leons-ink)}
+@media(max-width:480px){.app{border-inline:0}}
+#screen{flex:1;display:flex;flex-direction:column;outline:none}
+.ic{width:24px;height:24px;flex:none;fill:none;stroke:currentColor;color:inherit}
+
+/* Shared */
+.screen{padding:var(--leons-space-5) var(--leons-space-4) var(--leons-space-6);display:flex;flex-direction:column;gap:var(--leons-space-4);flex:1}
+.bar{display:flex;align-items:center;justify-content:space-between;min-height:44px}
+.iconbtn{display:grid;place-items:center;width:var(--leons-tap);height:44px;background:none;border:0;color:var(--leons-ink);cursor:pointer;text-decoration:none;margin-left:-14px}
+.iconbtn--fill{background:var(--leons-cognac);color:var(--leons-bone);width:44px;margin:0}
+.title{font-family:var(--leons-font-display);font-weight:400;text-transform:uppercase;font-size:var(--leons-text-h1);line-height:.95;letter-spacing:.01em}
+.sub{font-style:italic}
+.label{font-family:var(--leons-font-mono);font-size:var(--leons-text-label);letter-spacing:var(--leons-track-label);text-transform:uppercase}
+.label--cognac{color:var(--leons-cognac)}
+.card{background:var(--card);border:var(--leons-border)}
+.btn{display:flex;align-items:center;justify-content:center;gap:var(--leons-space-3);width:100%;text-decoration:none}
+.btn[disabled]{opacity:.45;cursor:default}
+.note{font-style:italic;font-size:var(--leons-text-small);min-height:1.5em}
+
+/* Photo placeholder: dark panel that describes the shot */
+.shot{background:var(--photo);color:var(--leons-bone);font-style:italic;line-height:1.35;padding:var(--leons-space-3);overflow:hidden}
+.photo{display:block;width:100%;height:100%;object-fit:cover;object-position:center 40%}
+
+/* Home */
+.hero{position:relative;display:flex;flex-direction:column;min-height:min(520px,66vh);min-height:min(520px,66dvh);background:var(--photo);color:var(--leons-bone)}
+.hero-brand{text-align:center;padding-top:var(--leons-space-5)}
+.hero-brand img{width:44px;height:auto}
+.hero-brand .name{font-family:var(--leons-font-display);font-size:34px;line-height:1;text-transform:uppercase;margin-top:var(--leons-space-1)}
+.hero-brand .label{letter-spacing:.3em;margin-top:var(--leons-space-1)}
+.hero-shot{font-style:italic;font-size:15px;line-height:1.4;padding:var(--leons-space-6) 22px 0}
+.hero-welcome{margin-top:auto;background:var(--leons-ink);padding:var(--leons-space-4) 22px var(--leons-space-4)}
+.hero-welcome h1{font-family:var(--leons-font-display);font-weight:400;font-size:40px;line-height:.95;text-transform:uppercase;letter-spacing:.01em}
+.hero-welcome p{font-style:italic;font-size:16px;margin-top:6px}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:var(--leons-space-4) var(--leons-space-4) var(--leons-space-5)}
+.tile{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--leons-space-2);min-height:120px;background:var(--card);border:var(--leons-border);color:var(--leons-ink);text-decoration:none;font-family:var(--leons-font-display);font-size:18px;letter-spacing:.04em;text-transform:uppercase;cursor:pointer}
+.tile .ic{width:28px;height:28px}
+.tile:hover{background:var(--leons-bone)}
+
+/* Tab bar */
+.tabs{position:sticky;bottom:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));background:var(--leons-ink);color:var(--leons-bone);border-top:1px solid var(--leons-line);z-index:5}
+.tabs a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:64px;color:var(--leons-bone);text-decoration:none;border-top:3px solid transparent;margin-top:-1px}
+.tabs .ic{width:22px;height:22px}
+.tabs span{font-family:var(--leons-font-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+.tabs a[aria-current=page]{color:var(--leons-tan);border-top-color:var(--leons-tan)}
+
+/* My dogs */
+.dogs{display:flex;flex-direction:column;gap:var(--leons-space-4)}
+.dog{display:flex;min-height:130px;width:100%;padding:0;text-align:left;cursor:pointer;color:inherit}
+.dog:hover{background:var(--leons-bone)}
+.dog .shot{width:128px;flex:none;font-size:12px}
+.dog .shot:has(img){padding:0}
+.dog-body{flex:1;min-width:0;padding:14px;display:flex;flex-direction:column;justify-content:center}
+.dog-name{font-family:var(--leons-font-display);font-size:28px;line-height:1;text-transform:uppercase;overflow-wrap:anywhere}
+.dog-breed{font-style:italic;font-size:14px;margin-top:4px}
+.dog-meta{margin-top:6px}
+.dog .ic{align-self:center;margin-right:12px;width:18px;height:18px}
+
+/* Book a stay */
+.seg{display:grid;grid-template-columns:1fr 1fr;border:var(--leons-border)}
+.seg button{min-height:46px;border:0;background:var(--leons-white);color:var(--leons-ink);font-family:var(--leons-font-display);font-size:16px;letter-spacing:.04em;text-transform:uppercase;cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--leons-ink);color:var(--leons-bone)}
+.rows{display:flex;flex-direction:column}
+.row{display:flex;align-items:center;gap:14px;width:100%;min-height:var(--leons-tap);padding:16px;background:none;border:0;border-bottom:1px solid var(--rule);text-align:left;color:inherit;cursor:pointer}
+.row:last-child{border-bottom:0}
+.row:hover{background:var(--leons-bone)}
+.row[disabled]{cursor:default}.row[disabled]:hover{background:none}
+.row-text{flex:1;min-width:0}
+.row-title{font-family:var(--leons-font-display);font-size:18px;line-height:1.1;text-transform:uppercase;letter-spacing:.01em}
+.row-sub{font-style:italic;font-size:14px;overflow-wrap:anywhere}
+.row .arrow{width:16px;height:16px}
+.row .shot{width:64px;height:48px;padding:5px;font-size:10px;line-height:1.2;flex:none}
+.spacer{flex:1}
+
+/* Confirmation + bookings */
+.done{background:var(--leons-ink);color:var(--leons-bone);padding:var(--leons-space-5);display:flex;flex-direction:column;gap:var(--leons-space-3)}
+.done .label{color:var(--leons-tan)}
+.done h1{font-family:var(--leons-font-display);font-weight:400;font-size:56px;line-height:.95;text-transform:uppercase}
+.done p{font-style:italic;font-size:18px}
+.facts{display:flex;flex-direction:column;gap:6px;margin-top:var(--leons-space-2);border-top:1px solid var(--leons-line);padding-top:var(--leons-space-3)}
+.booking{padding:var(--leons-space-4);display:flex;flex-direction:column;gap:6px}
+.booking h3{font-family:var(--leons-font-display);font-weight:400;font-size:var(--leons-text-h3);line-height:1.05;text-transform:uppercase}
+.empty{display:flex;flex-direction:column;gap:var(--leons-space-3);padding:var(--leons-space-6) var(--leons-space-4)}
+.empty h2{font-family:var(--leons-font-display);font-weight:400;font-size:var(--leons-text-h2);line-height:.95;text-transform:uppercase}
+
+/* Sheet */
+dialog{width:min(440px,calc(100vw - 32px));padding:var(--leons-space-5);border:var(--leons-border);background:var(--leons-white);color:var(--leons-ink)}
+dialog::backdrop{background:rgb(14 14 14 / .7)}
+dialog h2{font-size:var(--leons-text-h2);margin-bottom:var(--leons-space-4)}
+.field{display:block;margin-bottom:var(--leons-space-4)}
+.field .label{display:block;margin-bottom:var(--leons-space-2)}
+.field input,.field textarea{display:block;width:100%;min-height:var(--leons-tap);padding:12px;font:inherit;background:var(--leons-white);color:var(--leons-ink);border:var(--leons-border)}
+.field textarea{min-height:120px}
+.check{display:flex;align-items:center;gap:var(--leons-space-3);min-height:var(--leons-tap);padding:0 var(--leons-space-3);border:var(--leons-border);margin-bottom:var(--leons-space-2);background:var(--card);cursor:pointer;font-family:var(--leons-font-display);font-size:18px;text-transform:uppercase}
+.check input{width:22px;height:22px;accent-color:var(--leons-ink);margin:0}
+.sheet-actions{display:flex;gap:var(--leons-space-3);margin-top:var(--leons-space-4)}
+.sheet-actions .leons-btn{flex:1}
+.err{color:var(--leons-cognac);font-style:italic;margin-bottom:var(--leons-space-3)}

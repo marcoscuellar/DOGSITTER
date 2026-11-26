@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Leon's Club — App Screens</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#D08A4E}a:hover{color:#EDE8DF}
+button{font:inherit;cursor:pointer}
+</style>
+</helmet>
+<div style="width: 1440px; height: 1100px; box-sizing: border-box; background: #161616; color: #EDE8DF; padding: 56px 96px; display: flex; flex-direction: column; gap: 32px; font-family: Newsreader, serif">
+
+<svg width="0" height="0" style="position: absolute" aria-hidden="true"><defs>
+<symbol id="aHead" viewBox="92 58 216 140"><g fill="none" stroke="currentColor" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="200" cy="128" rx="70" ry="62"></ellipse><path d="M142 92 C108 98 98 160 118 188 C136 194 148 160 152 128 Z" fill="currentColor"></path><path d="M258 92 C292 98 302 160 282 188 C264 194 252 160 248 128 Z" fill="currentColor"></path><circle cx="176" cy="122" r="9" fill="currentColor" stroke="none"></circle><circle cx="224" cy="122" r="9" fill="currentColor" stroke="none"></circle><ellipse cx="200" cy="160" rx="34" ry="25"></ellipse><path d="M186 146 Q200 139 214 146 Q209 160 200 162 Q191 160 186 146 Z" fill="currentColor"></path></g></symbol>
+<pattern id="aMono" width="80" height="80" patternUnits="userSpaceOnUse"><rect width="80" height="80" fill="#0E0E0E"></rect><text x="20" y="32" font-family="Anton, sans-serif" font-size="24" text-anchor="middle" fill="#3A3530">L</text><use href="#aHead" x="46" y="48" width="28" height="20" color="#3A3530"></use></pattern>
+</defs></svg>
+
+<div style="display: flex; justify-content: space-between; align-items: flex-end">
+<div>
+<div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.25em; color: #D08A4E">LEON’S · THE CLUB · APP</div>
+<div style="font-family: Anton, sans-serif; font-size: 64px; line-height: 0.95; margin-top: 8px">THE MEMBERS APP</div>
+</div>
+<div style="font-style: italic; font-size: 18px; max-width: 460px; line-height: 1.45">Home, member card, and booking — the brand applied to UI. [Brackets] are placeholders for real data.</div>
+</div>
+
+<div style="display: flex; justify-content: space-between">
+
+<div style="width: 370px; height: 780px; border-radius: 44px; border: 8px solid #2A2A2A; background: #EDE8DF; color: #0E0E0E; overflow: hidden; display: flex; flex-direction: column; box-sizing: border-box">
+<div style="padding: 36px 24px 0; display: flex; flex-direction: column; gap: 18px; flex: 1">
+<div style="display: flex; justify-content: space-between; align-items: center">
+<div style="display: flex; align-items: center; gap: 8px"><svg width="34" height="22" style="color: #0E0E0E" aria-hidden="true"><use href="#aHead"></use></svg><span style="font-family: Anton, sans-serif; font-size: 26px">LEON’S</span></div>
+<button style="width: 44px; height: 44px; border-radius: 50%; border: 2px solid #0E0E0E; background: transparent; font-family: Anton, sans-serif; font-size: 18px" aria-label="Profile">L</button>
+</div>
+<div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.2em">GOOD EVENING, [NAME]</div>
+<div style="background: #0E0E0E; color: #EDE8DF; padding: 20px; display: flex; flex-direction: column; gap: 6px">
+<div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.2em; color: #D08A4E">● CHECKED IN</div>
+<div style="font-family: Anton, sans-serif; font-size: 44px; line-height: 1">[DOG’S NAME]</div>
+<div style="font-style: italic; font-size: 17px">Suite 04 · napping since [TIME]</div>
+</div>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px">
+<button style="height: 52px; background: #8A4A1F; color: #EDE8DF; border: none; font-family: Anton, sans-serif; font-size: 17px; letter-spacing: 0.04em">BOOK A STAY</button>
+<button style="height: 52px; background: transparent; color: #0E0E0E; border: 2px solid #0E0E0E; font-family: Anton, sans-serif; font-size: 17px; letter-spacing: 0.04em">DAY CLUB PASS</button>
+</div>
+<div style="border-top: 2px solid #0E0E0E; padding-top: 14px">
+<div style="display: flex; justify-content: space-between; align-items: baseline"><span style="font-family: Anton, sans-serif; font-size: 22px">TODAY’S REPORT</span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.15em; color: #8A4A1F">[DATE]</span></div>
+<div style="font-size: 16px; line-height: 1.8; margin-top: 6px">Mood · [MOOD]<br>Meals · [#] of [#]<br>Play group · [GROUP]<br>Best friend today · [NAME]</div>
+</div>
+</div>
+<div style="height: 72px; background: #0E0E0E; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); align-items: center; text-align: center; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.12em">
+<a href="#" style="color: #D08A4E; text-decoration: none">HOME</a><a href="#" style="color: #EDE8DF; text-decoration: none">BOOK</a><a href="#" style="color: #EDE8DF; text-decoration: none">CARD</a><a href="#" style="color: #EDE8DF; text-decoration: none">REPORTS</a>
+</div>
+</div>
+
+<div style="width: 370px; height: 780px; border-radius: 44px; border: 8px solid #2A2A2A; background: #0E0E0E; overflow: hidden; display: flex; flex-direction: column; box-sizing: border-box; position: relative">
+<svg width="100%" height="330" style="position: absolute; top: 0; left: 0" aria-hidden="true"><rect width="100%" height="100%" fill="url(#aMono)"></rect></svg>
+<div style="position: relative; flex: 1; padding: 36px 24px 24px; display: flex; flex-direction: column; align-items: center; gap: 22px">
+<div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.25em; color: #D08A4E; background: #0E0E0E; padding: 4px 8px">MEMBER CARD</div>
+<div style="width: 300px; height: 190px; background: #0E0E0E; border: 2px solid #D08A4E; padding: 18px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between; margin-top: 60px">
+<div style="display: flex; justify-content: space-between; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.2em; color: #D08A4E"><span>MEMBER</span><span>№ [0001]</span></div>
+<div style="font-family: Anton, sans-serif; font-size: 66px; line-height: 0.9">LEON’S</div>
+<div style="display: flex; justify-content: space-between; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.15em"><span>[DOG’S NAME]</span><span>[HUMAN]</span></div>
+</div>
+<div style="width: 170px; height: 170px; background: #EDE8DF; color: #0E0E0E; display: flex; align-items: center; justify-content: center; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.15em; text-align: center">[MEMBER<br>QR CODE]</div>
+<div style="font-style: italic; font-size: 20px">Show this at the door.</div>
+<div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.2em; color: #D08A4E">UPTOWN · CHICAGO</div>
+</div>
+</div>
+
+<div style="width: 370px; height: 780px; border-radius: 44px; border: 8px solid #2A2A2A; background: #EDE8DF; color: #0E0E0E; overflow: hidden; display: flex; flex-direction: column; box-sizing: border-box">
+<div style="padding: 36px 24px 24px; display: flex; flex-direction: column; gap: 16px; flex: 1">
+<div style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.2em; color: #8A4A1F">← BACK</div>
+<div style="font-family: Anton, sans-serif; font-size: 48px; line-height: 0.95">BOOK A STAY</div>
+<div style="font-style: italic; font-size: 17px">For [DOG’S NAME]. We’ll hold the room.</div>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px">
+<button style="height: 60px; background: #FFFFFF; border: 2px solid #0E0E0E; text-align: left; padding: 0 12px"><span style="display: block; font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: 0.2em; color: #8A4A1F">CHECK-IN</span><span style="font-family: Anton, sans-serif; font-size: 18px">[DATE]</span></button>
+<button style="height: 60px; background: #FFFFFF; border: 2px solid #0E0E0E; text-align: left; padding: 0 12px"><span style="display: block; font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: 0.2em; color: #8A4A1F">CHECK-OUT</span><span style="font-family: Anton, sans-serif; font-size: 18px">[DATE]</span></button>
+</div>
+<div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.2em; margin-top: 4px">CHOOSE A ROOM</div>
+<div style="display: flex; flex-direction: column; gap: 10px">
+<button style="background: #0E0E0E; color: #EDE8DF; border: none; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; text-align: left"><span><span style="display: block; font-family: Anton, sans-serif; font-size: 22px">THE CORNER SUITE</span><span style="font-style: italic; font-size: 14px">[Room details]</span></span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #D08A4E">[PRICE]</span></button>
+<button style="background: #FFFFFF; border: 2px solid #0E0E0E; padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; text-align: left"><span><span style="display: block; font-family: Anton, sans-serif; font-size: 22px">THE CLASSIC</span><span style="font-style: italic; font-size: 14px">[Room details]</span></span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px">[PRICE]</span></button>
+<button style="background: #FFFFFF; border: 2px solid #0E0E0E; padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; text-align: left"><span><span style="display: block; font-family: Anton, sans-serif; font-size: 22px">DAY CLUB ONLY</span><span style="font-style: italic; font-size: 14px">[Hours]</span></span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px">[PRICE]</span></button>
+</div>
+<button style="margin-top: auto; height: 58px; background: #8A4A1F; color: #EDE8DF; border: none; font-family: Anton, sans-serif; font-size: 20px; letter-spacing: 0.04em">REQUEST BOOKING</button>
+</div>
+</div>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

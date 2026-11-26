@@ -1,242 +1,213 @@
-/* Leo's Services · Guest Studio
-   Prototype only: data lives in this browser (localStorage). The role switch and household
-   selector are demo controls and do NOT enforce access. See START-HERE.md for production steps. */
+/* LEON'S · pet owner app (Home, My Dogs, Book a Stay).
+   Prototype: data stays in this browser. No prices, times or phone numbers are invented;
+   unknown values show as [BRACKETS]. */
 (() => {
-  const KEY = 'leo-guest-studio-v1';
+  const KEY = 'leons-owner-v1';
+    const SVG = 'http://www.w3.org/2000/svg';
   const $ = (s) => document.querySelector(s);
-  // DOM builder. Text is always added as text nodes, never as HTML, so user input cannot inject markup.
+
+  // Safe DOM builder: text is always a text node.
   const h = (tag, attrs = {}, ...kids) => {
     const e = document.createElement(tag);
-    for (const [n, v] of Object.entries(attrs)) {
+    for (const [k, v] of Object.entries(attrs)) {
       if (v == null || v === false) continue;
-      if (n === 'class') e.className = v;
-      else if (n.startsWith('on')) e.addEventListener(n.slice(2), v);
-      else e.setAttribute(n, v === true ? '' : v);
+      if (k === 'class') e.className = v;
+      else if (k.startsWith('on')) e.addEventListener(k.slice(2), v);
+      else e.setAttribute(k, v === true ? '' : v);
     }
     for (const c of kids.flat()) if (c != null && c !== false) e.append(c.nodeType ? c : document.createTextNode(c));
     return e;
   };
+  const icon = (name, cls = '') => {
+    const s = document.createElementNS(SVG, 'svg');
+    s.setAttribute('class', 'ic ' + cls); s.setAttribute('aria-hidden', 'true');
+    const u = document.createElementNS(SVG, 'use'); u.setAttribute('href', `#leons-${name}`);
+    s.append(u); return s;
+  };
   const uid = () => Math.random().toString(36).slice(2, 9);
-  const now = () => new Date().toISOString();
-  const clock = (iso) => new Date(iso).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-  const stamp = (iso) => new Date(iso).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
-  const today = () => new Date().toISOString().slice(0, 10);
+  const day = (v) => (v ? new Date(v + 'T00:00').toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' }) : '');
 
-  const PACK = ['Food and bowls', 'Leash and harness', 'Bed or blanket', 'Medications', 'Favorite toy'];
-  const KINDS = [['walk', 'Walks'], ['dropin', 'Drop-ins'], ['overnight', 'Overnight care']];
-  const SECTIONS = ['Profile', 'Stay & care', 'History', 'Messages', 'Settings'];
-
+  // ---------- state ----------
   const seed = () => ({
-    role: 'owner', hh: 'cuellar', dog: 'luna', section: 'Profile', visit: null, hostPhoto: null,
-    households: [{ id: 'cuellar', name: 'Cuellar household' }, { id: 'rivera', name: 'Rivera household' }],
+    // Luna's photo is the kit's sample. The two bracketed dogs only show the multi-dog layout.
     dogs: [
-      { id: 'luna', hh: 'cuellar', name: 'Luna', breed: 'Golden Retriever Mix', age: '3 yrs', weight: '62 lb', vet: 'Lakeview Animal Hospital', personality: 'Friendly, social, loves playtime.', likes: 'Fetch, treats, water, and other dogs.', photo: 'luna-guest.webp', art: 'luna.svg' },
-      { id: 'milo', hh: 'rivera', name: 'Milo', breed: 'Corgi Mix', age: '5 yrs', weight: '28 lb', vet: 'Uptown Veterinary', personality: 'Bold and chatty.', likes: 'Treat puzzles, belly rubs.', photo: null, art: 'milo.svg' },
-      { id: 'pepper', hh: 'rivera', name: 'Pepper', breed: 'Schnauzer Mix', age: '2 yrs', weight: '18 lb', vet: 'Uptown Veterinary', personality: 'A little shy at first, then all in.', likes: 'Squeaky toys, short walks.', photo: null, art: 'pepper.svg' },
+      { id: 'd1', name: 'Luna', photo: 'photos/luna-guest-PLACEHOLDER.webp' },
+      { id: 'd2', name: '[DOG 2]', ph: '[Photo: small dog, ears up, looking at camera]', sample: true },
+      { id: 'd3', name: '[DOG 3]', ph: '[Photo: curly dog, head tilted]', sample: true },
     ],
-    visits: [
-      { id: 'v1', dog: 'luna', kind: 'walk', time: '10:00 AM', status: 'scheduled', walk: null },
-      { id: 'v2', dog: 'pepper', kind: 'walk', time: '11:30 AM', status: 'scheduled', walk: null },
-      { id: 'v3', dog: 'milo', kind: 'dropin', time: '1:00 PM', status: 'scheduled', walk: null },
-      { id: 'v4', dog: 'pepper', kind: 'overnight', time: 'Tonight', status: 'scheduled', walk: null },
-    ],
-    stays: { luna: { arrival: 'Fri, Dec 4 · 9:00 AM', packed: [] }, milo: { arrival: 'Sat, Dec 5 · 8:30 AM', packed: [] }, pepper: { arrival: 'Sat, Dec 5 · 8:30 AM', packed: [] } },
-    instructions: [{ id: 'i1', dog: 'luna', date: today(), text: 'Sample: heartworm pill with dinner.' }],
-    updates: [], // parent-facing visit updates
-    staffNotes: [], // staff-only observations; never rendered in the parent view
-    messages: [{ id: 'm1', hh: 'cuellar', from: 'staff', at: now(), text: 'Hi! Luna is on the schedule for Friday. Send any care notes you like.' }],
-    statements: [
-      { id: 's1', hh: 'cuellar', title: 'November boarding (sample)', amount: '$240.00' },
-      { id: 's2', hh: 'rivera', title: 'November day club (sample)', amount: '$180.00' },
-    ],
-    settings: { recap: 'Daily email', notify: true },
+    bookings: [],
+    draft: { type: 'hotel', checkin: '', checkout: '', dogIds: [], services: '' },
   });
-
   let S;
   try { S = JSON.parse(localStorage.getItem(KEY)) || seed(); } catch { S = seed(); }
-  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch { toast('Storage is full. Try a smaller photo.'); } };
-  const dogOf = (id) => S.dogs.find((d) => d.id === id);
-  const myDogs = () => S.dogs.filter((d) => d.hh === S.hh);
-  const curDog = () => dogOf(S.dog) && dogOf(S.dog).hh === S.hh ? dogOf(S.dog) : myDogs()[0];
+  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch { /* storage unavailable */ } };
+  const dogName = (d) => d.name;
 
-  let toastTimer;
-  function toast(msg) { const t = $('#status'); t.textContent = msg; clearTimeout(toastTimer); toastTimer = setTimeout(() => (t.textContent = ''), 2600); }
+  // ---------- bottom sheet ----------
+  const sheet = $('#sheet');
+  function openSheet(title, body, onSave, saveLabel = 'Save') {
+    $('#sheet-title').textContent = title;
+    $('#sheet-body').replaceChildren(...[body].flat());
+    $('#sheet-save').textContent = saveLabel;
+    $('#sheet-form').onsubmit = (e) => {
+      e.preventDefault();
+      const err = onSave(new FormData(e.target));
+      if (err) { showErr(err); return; }
+      sheet.close(); render();
+    };
+    $('#sheet-cancel').onclick = () => sheet.close();
+    sheet.showModal();
+    const first = sheet.querySelector('input,textarea'); if (first) first.focus();
+  }
+  function showErr(msg) {
+    sheet.querySelector('.err')?.remove();
+    $('#sheet-body').prepend(h('p', { class: 'err', role: 'alert' }, msg));
+  }
+  const field = (label, input) => h('label', { class: 'field' }, h('span', { class: 'label' }, label), input);
 
   // ---------- shared pieces ----------
-  const src = (d) => d.photo || d.art;
-  const avatar = (d) => h('span', { class: 'avatar' }, h('img', { src: src(d), alt: '' }));
-  const mut = (fn) => () => { fn(); save(); render(); };
+  const back = (href = '#/home') => h('a', { class: 'iconbtn', href, 'aria-label': 'Back' }, icon('back'));
+  const comingNext = (title, line) => h('div', { class: 'screen' }, h('div', { class: 'bar' }, back()),
+    h('h1', { class: 'title' }, title),
+    h('div', { class: 'card empty' }, h('span', { class: 'label label--cognac' }, 'Next build'), h('p', { class: 'sub' }, line)));
 
-  function form(title, fields, onSave) {
-    $('#ft').textContent = title;
-    const box = $('#fields'); box.replaceChildren();
-    for (const f of fields) {
-      const input = f.type === 'textarea' ? h('textarea', { name: f.name, required: f.required }) : h('input', { name: f.name, type: f.type || 'text', required: f.required });
-      input.value = f.value || '';
-      box.append(h('label', {}, f.label, input));
-    }
-    const dlg = $('#dialog');
-    $('#form').onsubmit = (e) => { e.preventDefault(); const v = Object.fromEntries(new FormData(e.target)); dlg.close(); onSave(v); };
-    $('#cancel').onclick = () => dlg.close();
-    dlg.showModal();
-    box.querySelector('input,textarea')?.focus();
+  // ---------- Home ----------
+  function home() {
+    const tile = (href, ic, text) => h('a', { class: 'tile', href }, icon(ic), text);
+    return h('div', {},
+      h('section', { class: 'hero on-ink', 'aria-label': 'Welcome' },
+        h('div', { class: 'hero-brand' },
+          h('img', { src: 'logos/leons-head-mark-bone.svg', alt: '' }),
+          h('div', { class: 'name' }, 'LEON’S'),
+          h('div', { class: 'label' }, 'Hotel & Day Club')),
+        h('p', { class: 'hero-shot' }, '[Photo: a golden retriever stretched out on a suite bed, warm lamp light, looking right at the camera]'),
+        h('div', { class: 'hero-welcome' }, h('h1', {}, 'Welcome back,', h('br'), '[NAME].'), h('p', {}, 'Your dog is on the list.'))),
+      h('div', { class: 'tiles' },
+        tile('#/book/hotel', 'hotel-stay', 'Book a stay'),
+        tile('#/book/day', 'day-club', 'Day Club'),
+        tile('#/dogs', 'dog', 'My dogs'),
+        tile('#/messages', 'messages', 'Messages')));
   }
 
-  let photoTarget = null;
-  function pickPhoto(target) { photoTarget = target; $('#photo-input').click(); }
-  $('#photo-input').addEventListener('change', async (e) => {
-    const f = e.target.files[0]; e.target.value = '';
-    if (!f || !photoTarget) return;
-    const url = await new Promise((res) => {
-      const r = new FileReader();
-      r.onload = () => { const i = new Image(); i.onload = () => { const s = Math.min(1, 900 / Math.max(i.width, i.height)); const c = document.createElement('canvas'); c.width = i.width * s; c.height = i.height * s; c.getContext('2d').drawImage(i, 0, 0, c.width, c.height); res(c.toDataURL('image/jpeg', 0.82)); }; i.src = r.result; };
-      r.readAsDataURL(f);
+  // ---------- My Dogs ----------
+  function dogs() {
+    const list = S.dogs.map((d) => h('button', { class: 'dog card', onclick: () => (location.hash = `#/dog/${d.id}`), 'aria-label': `${dogName(d)}, open profile` },
+      h('div', { class: 'shot' }, d.photo ? h('img', { class: 'photo', src: d.photo, alt: `${dogName(d)}` }) : (d.ph || `[Photo: tight on ${dogName(d)}'s face]`)),
+      h('div', { class: 'dog-body' },
+        h('div', { class: 'dog-name' }, dogName(d)),
+        h('div', { class: 'dog-breed' }, d.breed || '[Breed]'),
+        h('div', { class: 'dog-meta label label--cognac' }, `${d.age || '[AGE]'} · ${d.weight || '[WEIGHT]'}`)),
+      icon('arrow-right')));
+    return h('div', { class: 'screen' },
+      h('div', { class: 'bar' }, back(), h('button', { class: 'iconbtn iconbtn--fill', 'aria-label': 'Add a dog', onclick: addDog }, icon('add'))),
+      h('h1', { class: 'title' }, 'My dogs'),
+      h('div', { class: 'dogs' }, list));
+  }
+  function addDog() {
+    openSheet('Add a dog', [
+      field('Name', h('input', { name: 'name', required: true, autocomplete: 'off' })),
+      field('Breed (optional)', h('input', { name: 'breed', autocomplete: 'off' })),
+      field('Age (optional)', h('input', { name: 'age', autocomplete: 'off' })),
+      field('Weight (optional)', h('input', { name: 'weight', autocomplete: 'off' })),
+    ], (f) => {
+      const name = String(f.get('name')).trim();
+      if (!name) return 'Add a name to continue.';
+      S.dogs = S.dogs.filter((d) => !d.sample); // layout samples go away once a real dog is added
+      S.dogs.push({ id: uid(), name, breed: String(f.get('breed')).trim(), age: String(f.get('age')).trim(), weight: String(f.get('weight')).trim() });
+      save();
+    }, 'Add dog');
+  }
+
+  // ---------- Book a Stay ----------
+  function book(type) {
+    const d = S.draft;
+    if (type && (type === 'hotel' || type === 'day') && d.type !== type) { d.type = type; save(); }
+    const hotel = d.type === 'hotel';
+    const chosen = S.dogs.filter((x) => d.dogIds.includes(x.id) && !x.sample);
+    const datesText = hotel
+      ? (d.checkin || d.checkout ? `${day(d.checkin) || '[Check-in]'} – ${day(d.checkout) || '[Check-out]'}` : '[Check-in] – [Check-out]')
+      : (d.checkin ? day(d.checkin) : '[Date]');
+    const row = (ic, title, sub, onclick, extra) => h('button', { class: 'row', type: 'button', onclick, disabled: !onclick }, icon(ic), h('div', { class: 'row-text' }, h('div', { class: 'row-title' }, title), h('div', { class: 'row-sub' }, sub)), extra || (onclick ? icon('arrow-right', 'arrow') : null));
+    const ready = d.checkin && (!hotel || d.checkout) && chosen.length;
+    const note = h('p', { class: 'note', role: 'status' }, ready ? '' : (hotel ? 'Choose dates and a dog to continue.' : 'Choose a date and a dog to continue.'));
+    return h('div', { class: 'screen' },
+      h('div', { class: 'bar' }, back()),
+      h('h1', { class: 'title' }, 'Book a stay'),
+      h('div', { class: 'seg', role: 'group', 'aria-label': 'Service' },
+        h('button', { 'aria-pressed': String(hotel), onclick: () => { d.type = 'hotel'; save(); render(); } }, 'Hotel stay'),
+        h('button', { 'aria-pressed': String(!hotel), onclick: () => { d.type = 'day'; save(); render(); } }, 'Day Club')),
+      h('div', { class: 'card rows' },
+        row('bookings', hotel ? 'Dates' : 'Date', datesText, () => pickDates(hotel)),
+        hotel && row('hotel-stay', 'Room / Suite', '[Suite name]', null, h('div', { class: 'shot' }, '[Photo: the suite]')),
+        row('dog', 'Which dogs', chosen.length ? chosen.map(dogName).join(', ') : '[Dog names]', pickDogs),
+        row('add', 'Add services', d.services ? d.services : '[Bath, grooming, enrichment]', pickServices)),
+      h('div', { class: 'spacer' }),
+      note,
+      h('button', { class: 'btn leons-btn leons-btn--primary', disabled: !ready, onclick: submitBooking }, 'Continue'));
+  }
+  function pickDates(hotel) {
+    const d = S.draft;
+    openSheet(hotel ? 'Dates' : 'Date', [
+      field(hotel ? 'Check-in' : 'Date', h('input', { type: 'date', name: 'in', value: d.checkin, required: true })),
+      hotel && field('Check-out', h('input', { type: 'date', name: 'out', value: d.checkout, required: true })),
+    ], (f) => {
+      const a = f.get('in'), b = hotel ? f.get('out') : '';
+      if (!a) return 'Choose a date.';
+      if (hotel && (!b || b <= a)) return 'Check-out needs to be after check-in.';
+      d.checkin = a; d.checkout = b; save();
     });
-    if (photoTarget === 'host') S.hostPhoto = url; else dogOf(photoTarget).photo = url;
-    save(); render(); toast('Photo updated');
-  });
+  }
+  function pickDogs() {
+    const d = S.draft; const real = S.dogs.filter((x) => !x.sample);
+    openSheet('Which dogs', real.length ? real.map((x) => h('label', { class: 'check' }, h('input', { type: 'checkbox', name: 'dog', value: x.id, checked: d.dogIds.includes(x.id) }), dogName(x))) : h('p', { class: 'sub' }, 'Add a dog first, from My dogs.'),
+      (f) => { d.dogIds = f.getAll('dog'); save(); });
+  }
+  function pickServices() {
+    const d = S.draft;
+    openSheet('Add services', field('Anything you’d like to add', h('textarea', { name: 'services' }, d.services)), (f) => { d.services = String(f.get('services')).trim(); save(); });
+  }
+  function submitBooking() {
+    const d = S.draft;
+    const b = { id: uid(), type: d.type, checkin: d.checkin, checkout: d.checkout, dogs: S.dogs.filter((x) => d.dogIds.includes(x.id) && !x.sample).map(dogName), services: d.services, status: 'requested', at: new Date().toISOString() };
+    S.bookings.unshift(b);
+    S.draft = { type: d.type, checkin: '', checkout: '', dogIds: [], services: '' };
+    save(); location.hash = `#/booked/${b.id}`;
+  }
+  const summary = (b) => [b.type === 'hotel' ? 'Hotel stay' : 'Day Club', b.type === 'hotel' ? `${day(b.checkin)} – ${day(b.checkout)}` : day(b.checkin), b.dogs.join(', ')];
 
-  function thread(hh, me) {
-    const msgs = S.messages.filter((m) => m.hh === hh);
-    const box = h('div', { class: 'thread' });
-    box.append(h('h2', {}, 'Messages'), h('p', { class: 'thread-context' }, `${S.households.find((x) => x.id === hh).name} · demo thread`));
-    box.append(msgs.length ? h('ol', {}, msgs.map((m) => h('li', { class: m.from === me ? 'mine' : '' }, h('p', {}, m.text), h('small', {}, `${m.from === 'staff' ? 'Leo' : 'Parent'} · ${stamp(m.at)}`)))) : h('p', { class: 'empty-thread' }, 'No messages yet.'));
-    const ta = h('textarea', { 'aria-label': 'Message', placeholder: 'Write a message…' });
-    box.append(h('form', { onsubmit: (e) => { e.preventDefault(); if (!ta.value.trim()) return; S.messages.push({ id: uid(), hh, from: me, at: now(), text: ta.value.trim() }); save(); render(); toast('Message sent'); } }, ta, h('button', { class: 'primary' }, 'Send')));
-    return box;
+  function booked(id) {
+    const b = S.bookings.find((x) => x.id === id);
+    if (!b) return bookings();
+    return h('div', { class: 'screen' },
+      h('div', { class: 'done on-ink' }, h('span', { class: 'label' }, 'Booking'), h('h1', {}, 'Request received'), h('p', {}, 'We’ll confirm within [TIME].'),
+        h('div', { class: 'facts' }, summary(b).map((t) => h('span', { class: 'label' }, t)))),
+      h('div', { class: 'spacer' }),
+      h('a', { class: 'btn leons-btn leons-btn--primary', href: '#/bookings' }, 'View bookings'),
+      h('a', { class: 'btn leons-btn leons-btn--secondary', href: '#/home' }, 'Back home'));
+  }
+  function bookings() {
+    return h('div', { class: 'screen' }, h('h1', { class: 'title' }, 'Bookings'),
+      S.bookings.length ? h('div', { class: 'dogs' }, S.bookings.map((b) => h('div', { class: 'card booking' },
+        h('span', { class: 'label label--cognac' }, `${b.status} · ${summary(b)[0]}`), h('h3', {}, summary(b)[1]), h('p', { class: 'sub' }, summary(b)[2] + (b.services ? ` · ${b.services}` : '')), h('p', { class: 'note' }, 'We’ll confirm within [TIME].'))))
+        : h('div', { class: 'card empty' }, h('h2', {}, 'Nothing booked yet'), h('p', { class: 'sub' }, 'Your dog is on the list — pick a date.'), h('a', { class: 'btn leons-btn leons-btn--primary', href: '#/book/hotel' }, 'Book a stay')));
   }
 
-  // ---------- parent view (My dogs) ----------
-  function profile(d) {
-    const st = S.stays[d.id];
-    const facts = [['Breed', d.breed], ['Age', d.age], ['Weight', d.weight], ['Vet', d.vet], ['Personality', d.personality], ['Likes', d.likes]];
-    const pass = h('div', { class: 'dog-pass' },
-      h('div', { class: 'pass-top' }, h('b', {}, `Member № ${String(S.dogs.indexOf(d) + 1).padStart(4, '0')}`), h('span', { class: 'slot' })),
-      h('div', { class: 'pass-photo' }, h('img', { src: src(d), class: d.photo ? '' : 'art', alt: `${d.name}, ${d.breed}` })),
-      h('div', { class: 'pass-bottom' }, h('div', {},
-        h('span', { class: 'label' }, 'Guest'), h('h2', {}, d.name),
-        h('dl', { class: 'badge-facts' }, facts.map(([k, v]) => h('div', {}, h('dt', {}, k), h('dd', {}, v || '—')))),
-        h('div', { class: 'badge-controls' },
-          h('button', { onclick: () => form(`Edit ${d.name}`, [['name', 'Name'], ['breed', 'Breed'], ['age', 'Age'], ['weight', 'Weight'], ['vet', 'Vet'], ['personality', 'Personality'], ['likes', 'Likes']].map(([name, label]) => ({ name, label, value: d[name] })), (v) => { Object.assign(d, v); save(); render(); toast('Profile saved'); }) }, 'Edit profile'),
-          h('button', { onclick: () => pickPhoto(d.id) }, 'Swap photo')))));
-    const bag = h('details', { class: 'bag', open: true },
-      h('summary', {}, h('span', { class: 'label' }, 'Packing'), h('strong', {}, `${st.packed.length} of ${PACK.length} packed`)),
-      PACK.map((p, i) => h('label', {}, h('input', { type: 'checkbox', checked: st.packed.includes(i), onchange: (e) => { st.packed = e.target.checked ? [...st.packed, i] : st.packed.filter((x) => x !== i); save(); render(); } }), ' ', p)));
-    const arrival = h('div', { class: 'arrival' }, h('span', { class: 'label' }, 'Arrival'), h('strong', {}, st.arrival),
-      h('button', { onclick: () => form('Arrival', [{ name: 'arrival', label: 'Date and time', value: st.arrival }], (v) => { st.arrival = v.arrival; save(); render(); }) }, 'Change'));
-    const latest = S.instructions.filter((i) => i.dog === d.id).slice(-1)[0];
-    return [pass, h('div', { class: 'stay-grid' }, arrival, bag), latest && h('div', { class: 'note' }, h('span', { class: 'label' }, 'Latest instruction'), h('p', {}, `${latest.date}: ${latest.text}`))];
-  }
-
-  function stayCare(d) {
-    const date = h('input', { type: 'date', value: today(), name: 'date', required: true });
-    const text = h('textarea', { name: 'text', required: true, placeholder: 'e.g. Half a scoop of food, no treats after 6 PM' });
-    const list = S.instructions.filter((i) => i.dog === d.id).sort((a, b) => b.date.localeCompare(a.date));
-    return h('div', { class: 'member-panel' }, h('h2', {}, `Stay & care for ${d.name}`),
-      h('form', { onsubmit: (e) => { e.preventDefault(); S.instructions.push({ id: uid(), dog: d.id, date: date.value, text: text.value.trim() }); save(); render(); toast('Instruction added'); } },
-        h('label', {}, 'Date', date), h('label', {}, 'Instruction', text), h('button', { class: 'primary' }, 'Add instruction')),
-      h('h3', {}, 'Instructions'),
-      list.length ? list.map((i) => h('div', { class: 'record' }, h('b', {}, i.date), h('p', {}, i.text), h('button', { onclick: mut(() => (S.instructions = S.instructions.filter((x) => x.id !== i.id))) }, 'Remove'))) : h('p', { class: 'muted' }, 'No instructions yet.'));
-  }
-
-  function history(d) {
-    // Parent view shows ONLY: walk timestamps, parent-facing updates, statements. Staff observations are never included.
-    const walks = S.visits.filter((v) => v.dog === d.id && v.walk && v.walk.end).map((v) => ({ at: v.walk.start, title: 'Walk', body: `Started ${clock(v.walk.start)} · Ended ${clock(v.walk.end)}` }));
-    const ups = S.updates.filter((u) => u.dog === d.id).map((u) => ({ at: u.at, title: 'Visit update from Leo’s team', body: u.text }));
-    const rows = [...walks, ...ups].sort((a, b) => b.at.localeCompare(a.at));
-    return h('div', { class: 'member-panel' }, h('h2', {}, 'History'),
-      rows.length ? rows.map((r) => h('div', { class: 'record' }, h('b', {}, `${r.title} · ${stamp(r.at)}`), h('p', {}, r.body))) : h('p', { class: 'muted' }, 'Walks and visit updates will appear here.'),
-      h('h3', {}, 'Statements'),
-      S.statements.filter((s) => s.hh === S.hh).map((s) => h('details', { class: 'record' }, h('summary', {}, `${s.title} · ${s.amount}`),
-        h('p', { class: 'muted' }, 'Demo amount only. Rates and late-pickup terms need Leo’s approval before billing.'),
-        h('button', { onclick: () => { S.section = 'Messages'; save(); render(); const ta = $('.thread textarea'); if (ta) ta.value = `Question about "${s.title}": `; ta?.focus(); } }, 'Ask Leo about this'))));
-  }
-
-  function settings() {
-    return h('div', { class: 'member-panel' }, h('h2', {}, 'Settings'),
-      h('label', {}, 'Daily recap', h('select', { onchange: (e) => { S.settings.recap = e.target.value; save(); toast('Saved'); } }, ['Daily email', 'Push notification', 'Off'].map((o) => h('option', { selected: S.settings.recap === o }, o)))),
-      h('label', {}, h('input', { type: 'checkbox', checked: S.settings.notify, onchange: (e) => { S.settings.notify = e.target.checked; save(); toast('Saved'); } }), ' Notify me about new messages'),
-      h('p', { class: 'muted' }, 'Recaps are not sent in this prototype.'),
-      h('button', { onclick: () => { if (confirm('Reset all demo data in this browser?')) { S = seed(); save(); render(); } } }, 'Reset demo data'));
-  }
-
-  function renderOwner() {
-    const d = curDog();
-    S.dog = d.id;
-    $('#title').textContent = 'My dogs';
-    $('#switch').replaceChildren('Household ', h('select', { 'aria-label': 'Household (demo)', onchange: (e) => { S.hh = e.target.value; S.dog = myDogs()[0].id; save(); render(); } }, S.households.map((x) => h('option', { value: x.id, selected: x.id === S.hh }, x.name))));
-    $('#sections').replaceChildren(h('label', { class: 'section-picker' }, 'Section', h('select', { onchange: (e) => { S.section = e.target.value; save(); render(); } }, SECTIONS.map((s) => h('option', { selected: s === S.section }, s)))));
-    $('#list').replaceChildren(h('div', { class: 'panelhead' }, h('span', { class: 'label' }, 'Your dogs')),
-      ...myDogs().map((x) => h('button', { class: 'visit' + (x.id === d.id ? ' active' : ''), 'aria-pressed': x.id === d.id, onclick: mut(() => (S.dog = x.id)) }, avatar(x), h('span', {}, h('strong', {}, x.name), h('small', {}, `${x.breed} · ${x.age}`)))),
-      h('button', { class: 'visit', 'data-act': 'add', onclick: () => form('Add a dog', [{ name: 'name', label: 'Name', required: true }, { name: 'breed', label: 'Breed' }], (v) => { const id = uid(); S.dogs.push({ id, hh: S.hh, name: v.name.trim(), breed: v.breed, age: '', weight: '', vet: '', personality: '', likes: '', photo: null, art: 'luna.svg' }); S.stays[id] = { arrival: 'To be set', packed: [] }; S.dog = id; save(); render(); }) }, '+ Add a dog'));
-    const body = { Profile: () => profile(d), 'Stay & care': () => stayCare(d), History: () => history(d), Messages: () => thread(S.hh, 'parent'), Settings: settings }[S.section]();
-    $('#detail').replaceChildren(...[body].flat().filter(Boolean));
-  }
-
-  // ---------- Care desk ----------
-  const STATUS = { scheduled: '○ Scheduled', active: '● In progress', done: '✓ Done' };
-
-  function today_() {
-    $('#title').textContent = 'Today';
-    $('#switch').replaceChildren(); $('#sections').replaceChildren(); $('#list').replaceChildren();
-    const groups = KINDS.map(([k, label]) => {
-      const vs = S.visits.filter((v) => v.kind === k);
-      return h('div', { class: 'agenda-group' }, h('h2', {}, label, h('small', {}, `${vs.filter((v) => v.status === 'done').length}/${vs.length} done`)),
-        vs.length ? vs.map((v) => { const d = dogOf(v.dog); return h('button', { class: 'agenda-row', onclick: mut(() => (S.visit = v.id)) }, avatar(d), h('span', {}, h('strong', {}, d.name), h('small', {}, d.breed)), h('span', { class: 'agenda-time' }, h('strong', {}, v.time), h('small', {}, STATUS[v.status]))); }) : h('p', { class: 'muted' }, 'Nothing scheduled.'));
-    });
-    $('#detail').replaceChildren(h('div', { class: 'agenda' }, groups));
-  }
-
-  function visitView(v) {
-    const d = dogOf(v.dog);
-    $('#title').textContent = d.name;
-    $('#switch').replaceChildren(h('button', { onclick: mut(() => (S.visit = null)) }, '← Back to Today'));
-    $('#sections').replaceChildren(); $('#list').replaceChildren();
-    const isWalk = v.kind === 'walk';
-    const kindName = KINDS.find((k) => k[0] === v.kind)[1].replace(/s$/, '');
-    let ctl;
-    if (isWalk) {
-      const w = v.walk;
-      ctl = [h('h3', {}, 'Walk'), h('p', {}, !w ? 'Not started. Walk logs record timestamps only.' : w.end ? `Started ${clock(w.start)} · Ended ${clock(w.end)}` : `Started ${clock(w.start)}`),
-        h('button', { 'data-walk': '', disabled: w && w.end, onclick: mut(() => { if (!w) { v.walk = { start: now(), end: null }; v.status = 'active'; toast('Walk started'); } else if (!w.end) { w.end = now(); v.status = 'done'; toast('Walk ended'); } }) }, !w ? 'Start walk' : w.end ? 'Walk logged' : 'End walk')];
-    } else {
-      ctl = [h('h3', {}, kindName), h('p', {}, STATUS[v.status]), h('button', { 'data-walk': '', disabled: v.status === 'done', onclick: mut(() => { v.status = 'done'; toast('Visit complete'); }) }, v.status === 'done' ? 'Complete' : 'Mark complete')];
-    }
-    const head = h('div', { class: 'visit-head' },
-      h('div', { class: 'visit-line' }, h('div', { class: 'visit-portrait' }, h('img', { src: src(d), alt: '' })), h('div', {}, h('span', { class: 'eyebrow' }, kindName), h('h2', {}, d.name), h('p', {}, d.breed), h('p', { class: 'visit-time' }, v.time))),
-      h('div', { class: 'inside' }, ctl));
-    const notes = S.instructions.filter((i) => i.dog === d.id);
-    const care = h('div', { class: 'inside' }, h('h3', {}, 'Care instructions'), notes.length ? notes.map((i) => h('p', {}, `${i.date}: ${i.text}`)) : h('p', { class: 'muted' }, 'None on file.'),
-      h('details', { class: 'visit-facts' }, h('summary', {}, 'Profile details'), h('p', {}, `${d.personality} Likes: ${d.likes} Vet: ${d.vet}`)));
-    const obs = h('textarea', { required: true, 'aria-label': 'Sitter observation' });
-    const mine = S.staffNotes.filter((n) => n.dog === d.id);
-    const staff = h('div', { class: 'inside' }, h('h3', {}, 'Sitter observation'), h('p', { class: 'muted' }, 'Staff only. Parents never see this.'),
-      h('form', { onsubmit: (e) => { e.preventDefault(); S.staffNotes.push({ id: uid(), dog: d.id, at: now(), text: obs.value.trim() }); save(); render(); toast('Observation saved (staff only)'); } }, obs, h('button', { class: 'primary' }, 'Save observation')),
-      mine.map((n) => h('div', { class: 'record' }, h('b', {}, stamp(n.at)), h('p', {}, n.text))));
-    const upd = h('textarea', { required: true, 'aria-label': 'Update for parents', placeholder: 'A short, friendly summary of the visit' });
-    const ups = S.updates.filter((u) => u.dog === d.id);
-    const parent = h('div', { class: 'inside' }, h('h3', {}, 'Update for parents'), h('p', { class: 'muted' }, 'Visible in the parent History tab.'),
-      h('form', { onsubmit: (e) => { e.preventDefault(); S.updates.push({ id: uid(), dog: d.id, at: now(), text: upd.value.trim() }); save(); render(); toast('Update shared with parents'); } }, upd, h('button', { class: 'primary' }, 'Share update')),
-      ups.map((u) => h('div', { class: 'record' }, h('b', {}, stamp(u.at)), h('p', {}, u.text))));
-    $('#detail').replaceChildren(head, care, staff, parent, thread(d.hh, 'staff'));
-  }
-
-  // ---------- shell ----------
+  // ---------- router ----------
+  const TAB = { home: 'home', bookings: 'bookings', booked: 'bookings', book: 'home', dogs: 'dogs', dog: 'dogs', messages: 'messages', account: 'account' };
   function render() {
-    document.body.dataset.view = S.role;
-    $('#desk').setAttribute('aria-pressed', S.role === 'desk');
-    $('#owner').setAttribute('aria-pressed', S.role === 'owner');
-    $('#date').textContent = new Date().toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' });
-    const hf = $('#host-face');
-    hf.replaceChildren(S.hostPhoto ? h('img', { src: S.hostPhoto, alt: 'Leo' }) : 'L');
-    document.title = `LEON’S · ${S.role === 'desk' ? 'Care desk' : 'My dogs'}`;
-    if (S.role === 'owner') renderOwner();
-    else { const v = S.visits.find((x) => x.id === S.visit); v ? visitView(v) : today_(); }
-    $('#title').focus({ preventScroll: true });
+    const [r = 'home', arg] = location.hash.replace(/^#\/?/, '').split('/');
+    const view = {
+      home, dogs, bookings,
+      book: () => book(arg), booked: () => booked(arg),
+      dog: () => comingNext('Dog profile', 'Profile and care instructions come in the next build.'),
+      messages: () => comingNext('Messages', 'Two-way messages with Leon come in the next build.'),
+      account: () => comingNext('Account', 'Account and payments come in the next build.'),
+    }[r] || home;
+    $('#screen').replaceChildren(view());
+    document.querySelectorAll('.tabs a').forEach((a) => (a.dataset.tab === TAB[r] ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current')));
+    const t = { home: 'LEON’S', dogs: 'My dogs · LEON’S', book: 'Book a stay · LEON’S', bookings: 'Bookings · LEON’S', booked: 'Request received · LEON’S' }[r];
+    document.title = t || 'LEON’S';
   }
-
-  $('#desk').onclick = () => { S.role = 'desk'; S.visit = null; save(); render(); };
-  $('#owner').onclick = () => { S.role = 'owner'; save(); render(); };
-  $('#host-photo').onclick = () => pickPhoto('host');
+  addEventListener('hashchange', () => { render(); scrollTo(0, 0); $('#screen').focus({ preventScroll: true }); });
   render();
 })();

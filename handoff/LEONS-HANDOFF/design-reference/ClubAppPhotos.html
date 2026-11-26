@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Leon's Club — App with Photos</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#8A4A1F}a:hover{color:#0E0E0E}
+button{font:inherit;cursor:pointer}
+</style>
+</helmet>
+<div style="width: 2080px; height: 1340px; box-sizing: border-box; background: #FFFFFF; color: #0E0E0E; padding: 56px 64px; display: flex; flex-direction: column; gap: 36px; font-family: Newsreader, serif">
+
+<div style="display: flex; justify-content: space-between; align-items: flex-end">
+<div>
+<div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.25em; color: #8A4A1F">LEON’S · THE CLUB · APP V2</div>
+<div style="font-family: Anton, sans-serif; font-size: 80px; line-height: 0.95; margin-top: 8px">PHOTO-FIRST SCREENS</div>
+</div>
+<div style="font-style: italic; font-size: 20px; max-width: 640px; line-height: 1.45">Dark panels are photo slots — each one says exactly what to shoot. Icons are the Leon’s set: 2px line, round ends.</div>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 26px 34px; padding: 22px 26px; background: #FAF8F4; border: 1.5px solid #0E0E0E">
+<sc-for list="{{icons}}" as="ic" hint-placeholder-count="36">
+<div style="width: 64px; display: flex; flex-direction: column; align-items: center; gap: 8px"><img src="icons/leons-icon-{{ic.n}}.svg" alt="" style="width: 28px; height: 28px"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.06em; text-align: center; line-height: 1.3">{{ic.n}}</span></div>
+</sc-for>
+</div>
+
+<div style="display: flex; justify-content: space-between">
+
+<div style="width: 370px; height: 780px; border-radius: 44px; border: 8px solid #1C1C1C; overflow: hidden; display: flex; flex-direction: column; box-sizing: border-box; background: #0E0E0E; color: #EDE8DF">
+<div style="position: relative; height: 430px; flex-shrink: 0; background: #4A4540">
+<div style="position: absolute; top: 24px; left: 0; right: 0; text-align: center"><img src="icons/leons-head-mark-ink.svg" alt="" style="width: 44px; filter: invert(1)"><div style="font-family: Anton, sans-serif; font-size: 34px; line-height: 1">LEON’S</div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.3em; color: #D08A4E">HOTEL &amp; DAY CLUB</div></div>
+<div style="position: absolute; top: 150px; left: 22px; right: 22px; font-style: italic; font-size: 15px; line-height: 1.4">[Photo: a golden retriever stretched out on a suite bed, warm lamp light, looking right at the camera]</div>
+<div style="position: absolute; left: 0; right: 0; bottom: 0; background: #0E0E0E; padding: 18px 22px 6px"><div style="font-family: Anton, sans-serif; font-size: 40px; line-height: 0.95">WELCOME BACK,<br>[NAME].</div><div style="font-style: italic; font-size: 16px; margin-top: 6px">Your dog is on the list.</div></div>
+</div>
+<div style="padding: 14px 18px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; flex: 1">
+<button style="background: #FAF8F4; color: #0E0E0E; border: none; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; font-family: Anton, sans-serif; font-size: 16px"><img src="icons/leons-icon-hotel-stay.svg" alt="" style="width: 28px">BOOK A STAY</button>
+<button style="background: #FAF8F4; color: #0E0E0E; border: none; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; font-family: Anton, sans-serif; font-size: 16px"><img src="icons/leons-icon-day-club.svg" alt="" style="width: 28px">DAY CLUB</button>
+<button style="background: #FAF8F4; color: #0E0E0E; border: none; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; font-family: Anton, sans-serif; font-size: 16px"><img src="icons/leons-icon-dog.svg" alt="" style="width: 28px">MY DOGS</button>
+<button style="background: #FAF8F4; color: #0E0E0E; border: none; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; font-family: Anton, sans-serif; font-size: 16px"><img src="icons/leons-icon-messages.svg" alt="" style="width: 28px">MESSAGES</button>
+</div>
+<div style="height: 64px; border-top: 1px solid #2A2A2A; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); align-items: center; justify-items: center">
+<img src="icons/leons-icon-home.svg" alt="Home" style="width: 22px; filter: invert(57%) sepia(43%) saturate(560%) hue-rotate(338deg)"><img src="icons/leons-icon-bookings.svg" alt="Bookings" style="width: 22px; filter: invert(1)"><img src="icons/leons-icon-dog.svg" alt="Dogs" style="width: 22px; filter: invert(1)"><img src="icons/leons-icon-messages.svg" alt="Messages" style="width: 22px; filter: invert(1)"><img src="icons/leons-icon-account.svg" alt="Account" style="width: 22px; filter: invert(1)">
+</div>
+</div>
+
+<div style="width: 370px; height: 780px; border-radius: 44px; border: 8px solid #1C1C1C; overflow: hidden; box-sizing: border-box; background: #FFFFFF; padding: 30px 18px; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; justify-content: space-between; align-items: center"><img src="icons/leons-icon-back.svg" alt="Back" style="width: 22px"><div style="width: 44px; height: 44px; background: #8A4A1F; display: flex; align-items: center; justify-content: center"><img src="icons/leons-icon-add.svg" alt="Add a dog" style="width: 22px; filter: invert(1)"></div></div>
+<div style="font-family: Anton, sans-serif; font-size: 48px; line-height: 0.95">MY DOGS</div>
+<sc-for list="{{dogs}}" as="d" hint-placeholder-count="3">
+<div style="display: flex; height: 130px; background: #FAF8F4; border: 1.5px solid #0E0E0E">
+<div style="width: 128px; flex-shrink: 0; background: #4A4540; color: #EDE8DF; padding: 12px; box-sizing: border-box; font-style: italic; font-size: 12px; line-height: 1.35">{{d.photo}}</div>
+<div style="flex: 1; padding: 14px; display: flex; flex-direction: column; justify-content: center"><div style="font-family: Anton, sans-serif; font-size: 28px; line-height: 1">{{d.name}}</div><div style="font-style: italic; font-size: 14px; margin-top: 4px">[Breed]</div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.12em; color: #8A4A1F; margin-top: 6px">[AGE] · [WEIGHT]</div></div>
+<div style="display: flex; align-items: center; padding-right: 12px"><img src="icons/leons-icon-arrow-right.svg" alt="" style="width: 18px"></div>
+</div>
+</sc-for>
+</div>
+
+<div style="width: 370px; height: 780px; border-radius: 44px; border: 8px solid #1C1C1C; overflow: hidden; box-sizing: border-box; background: #FFFFFF; padding: 30px 18px; display: flex; flex-direction: column; gap: 14px">
+<img src="icons/leons-icon-back.svg" alt="Back" style="width: 22px">
+<div style="font-family: Anton, sans-serif; font-size: 48px; line-height: 0.95">BOOK A STAY</div>
+<div style="display: grid; grid-template-columns: 1fr 1fr; border: 1.5px solid #0E0E0E">
+<button style="height: 46px; background: #0E0E0E; color: #EDE8DF; border: none; font-family: Anton, sans-serif; font-size: 16px">HOTEL STAY</button>
+<button style="height: 46px; background: #FFFFFF; color: #0E0E0E; border: none; font-family: Anton, sans-serif; font-size: 16px">DAY CLUB</button>
+</div>
+<div style="background: #FAF8F4; border: 1.5px solid #0E0E0E">
+<div style="display: flex; align-items: center; gap: 14px; padding: 16px; border-bottom: 1px solid #D6CFC2"><img src="icons/leons-icon-bookings.svg" alt="" style="width: 24px"><div style="flex: 1"><div style="font-family: Anton, sans-serif; font-size: 18px">DATES</div><div style="font-style: italic; font-size: 14px">[Check-in] – [Check-out]</div></div><img src="icons/leons-icon-arrow-right.svg" alt="" style="width: 16px"></div>
+<div style="display: flex; align-items: center; gap: 14px; padding: 16px; border-bottom: 1px solid #D6CFC2"><img src="icons/leons-icon-hotel-stay.svg" alt="" style="width: 24px"><div style="flex: 1"><div style="font-family: Anton, sans-serif; font-size: 18px">ROOM / SUITE</div><div style="font-style: italic; font-size: 14px">[Suite name]</div></div><div style="width: 64px; height: 48px; background: #4A4540; color: #EDE8DF; font-style: italic; font-size: 10px; line-height: 1.2; padding: 5px; box-sizing: border-box">[Photo: the suite]</div></div>
+<div style="display: flex; align-items: center; gap: 14px; padding: 16px; border-bottom: 1px solid #D6CFC2"><img src="icons/leons-icon-dog.svg" alt="" style="width: 24px"><div style="flex: 1"><div style="font-family: Anton, sans-serif; font-size: 18px">WHICH DOGS</div><div style="font-style: italic; font-size: 14px">[Dog names]</div></div><img src="icons/leons-icon-arrow-right.svg" alt="" style="width: 16px"></div>
+<div style="display: flex; align-items: center; gap: 14px; padding: 16px"><img src="icons/leons-icon-add.svg" alt="" style="width: 24px"><div style="flex: 1"><div style="font-family: Anton, sans-serif; font-size: 18px">ADD SERVICES</div><div style="font-style: italic; font-size: 14px">[Bath, grooming, enrichment]</div></div><img src="icons/leons-icon-arrow-right.svg" alt="" style="width: 16px"></div>
+</div>
+<button style="margin-top: auto; height: 56px; background: #8A4A1F; color: #EDE8DF; border: none; font-family: Anton, sans-serif; font-size: 20px; letter-spacing: 0.04em">CONTINUE</button>
+</div>
+
+<div style="width: 370px; height: 780px; border-radius: 44px; border: 8px solid #1C1C1C; overflow: hidden; box-sizing: border-box; background: #FFFFFF; padding: 30px 18px; display: flex; flex-direction: column; gap: 14px">
+<img src="icons/leons-icon-back.svg" alt="Back" style="width: 22px">
+<div style="font-family: Anton, sans-serif; font-size: 48px; line-height: 0.95">PHOTOS &amp; UPDATES</div>
+<div style="display: flex; gap: 8px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.12em">
+<span style="background: #0E0E0E; color: #EDE8DF; padding: 8px 12px">TODAY</span><span style="border: 1.5px solid #0E0E0E; padding: 7px 12px">THIS STAY</span><span style="border: 1.5px solid #0E0E0E; padding: 7px 12px">ALL</span>
+</div>
+<div style="height: 290px; flex-shrink: 0; background: #4A4540; color: #EDE8DF; padding: 18px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between">
+<div style="font-style: italic; font-size: 15px; line-height: 1.4">[Photo: three dogs mid-run across the play yard, one with a ball, shot low at dog height]</div>
+<div style="display: flex; justify-content: space-between; font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: 0.15em; color: #D08A4E"><span>FIG. I — PLAY GROUP</span><span>01 / [#]</span></div>
+</div>
+<div style="display: flex; gap: 10px; align-items: baseline"><img src="icons/leons-icon-camera.svg" alt="" style="width: 18px"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.15em; color: #8A4A1F">[TIME] · PLAY GROUP</span></div>
+<div style="font-style: italic; font-size: 17px; line-height: 1.4">[Caption from the care team.]</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+<div style="height: 86px; background: #4A4540; color: #EDE8DF; font-style: italic; font-size: 11px; line-height: 1.3; padding: 8px; box-sizing: border-box">[Photo: nap on the suite bed]</div>
+<div style="height: 86px; background: #4A4540; color: #EDE8DF; font-style: italic; font-size: 11px; line-height: 1.3; padding: 8px; box-sizing: border-box">[Photo: bath time, eyes closed]</div>
+<div style="height: 86px; background: #4A4540; color: #EDE8DF; font-style: italic; font-size: 11px; line-height: 1.3; padding: 8px; box-sizing: border-box">[Photo: treat from Leon’s hand]</div>
+</div>
+<div style="text-align: center; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.15em">VIEW ALL ([#])</div>
+</div>
+
+<div style="width: 370px; height: 780px; border-radius: 44px; border: 8px solid #1C1C1C; overflow: hidden; box-sizing: border-box; background: #FFFFFF; padding: 30px 18px; display: flex; flex-direction: column; gap: 14px">
+<img src="icons/leons-icon-back.svg" alt="Back" style="width: 22px">
+<div style="font-family: Anton, sans-serif; font-size: 48px; line-height: 0.95">CARE NOTES</div>
+<div style="display: flex; gap: 14px; align-items: center; background: #0E0E0E; color: #EDE8DF; padding: 12px">
+<div style="width: 64px; height: 64px; flex-shrink: 0; background: #4A4540; font-style: italic; font-size: 10px; line-height: 1.2; padding: 6px; box-sizing: border-box">[Photo: face]</div>
+<div><div style="font-family: Anton, sans-serif; font-size: 26px; line-height: 1">[DOG’S NAME]</div><div style="font-style: italic; font-size: 14px">[Breed]</div></div>
+</div>
+<sc-for list="{{care}}" as="c" hint-placeholder-count="5">
+<div style="display: flex; gap: 14px; align-items: flex-start; padding: 12px 4px; border-bottom: 1px solid #D6CFC2"><img src="icons/leons-icon-{{c.icon}}.svg" alt="" style="width: 24px; margin-top: 2px"><div><div style="font-family: Anton, sans-serif; font-size: 18px">{{c.title}}</div><div style="font-style: italic; font-size: 14px">{{c.note}}</div></div></div>
+</sc-for>
+<button style="margin-top: auto; height: 56px; background: #8A4A1F; color: #EDE8DF; border: none; font-family: Anton, sans-serif; font-size: 20px; letter-spacing: 0.04em">EDIT NOTES</button>
+</div>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":2080,"height":1340}}'>
+class Component extends DCLogic {
+renderVals() {
+const n = ['home','bookings','dog','messages','account','walk','day-club','hotel-stay','overnight','care-instructions','medication','meals','camera','photos','check-in','drop-off','checklist','bell','settings','schedule','start-walk','end-walk','bag','concern','approve','decline','payment','notes','private-note','phone','play-group','member-card','add','arrow-right','back','close'];
+return {
+icons: n.map((x) => ({ n: x })),
+dogs: [
+{ name: '[DOG 1]', photo: '[Photo: big dog, tight on the face, tongue out]' },
+{ name: '[DOG 2]', photo: '[Photo: small dog, ears up, looking at camera]' },
+{ name: '[DOG 3]', photo: '[Photo: curly dog, head tilted]' }
+],
+care: [
+{ icon: 'meals', title: 'FEEDING', note: '[Times and amounts]' },
+{ icon: 'medication', title: 'MEDICATIONS', note: '[None, or details]' },
+{ icon: 'walk', title: 'WALKS', note: '[How often, how long]' },
+{ icon: 'notes', title: 'PREFERENCES', note: '[Favorite things]' },
+{ icon: 'concern', title: 'THINGS TO KNOW', note: '[Anything staff should watch for]' }
+]
+};
+}
+}
+</script>
+</body>
+</html>
