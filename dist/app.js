@@ -2,7 +2,7 @@
    Prototype: data stays in this browser. No prices, times or phone numbers are invented;
    unknown values show as [BRACKETS]. */
 (() => {
-  const KEY = 'leons-owner-v1';
+  const KEY = 'leons-owner-v2';
     const SVG = 'http://www.w3.org/2000/svg';
   const $ = (s) => document.querySelector(s);
 
@@ -32,8 +32,8 @@
     // Luna's photo is the kit's sample. The two bracketed dogs only show the multi-dog layout.
     dogs: [
       { id: 'd1', name: 'Luna', photo: 'photos/luna-guest-PLACEHOLDER.webp' },
-      { id: 'd2', name: '[DOG 2]', ph: '[Photo: small dog, ears up, looking at camera]', sample: true },
-      { id: 'd3', name: '[DOG 3]', ph: '[Photo: curly dog, head tilted]', sample: true },
+      { id: 'd2', name: '[DOG 2]', photo: 'photos/dog-small-ears-up.webp', sample: true },
+      { id: 'd3', name: '[DOG 3]', photo: 'photos/dog-beagle-ball.webp', sample: true },
     ],
     bookings: [],
     draft: { type: 'hotel', checkin: '', checkout: '', dogIds: [], services: '' },
