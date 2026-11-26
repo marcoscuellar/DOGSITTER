@@ -1,7 +1,7 @@
 /* LEON'S · pet owner app. Prototype: data stays in this browser.
    No prices, times or phone numbers are invented; unknown values show as [BRACKETS]. */
 (() => {
-  const KEY = 'leons-owner-v4';
+  const KEY = 'leons-owner-v5';
   const SVGNS = 'http://www.w3.org/2000/svg';
   const $ = (s) => document.querySelector(s);
   const h = (tag, attrs = {}, ...kids) => {
@@ -49,7 +49,7 @@
     ],
     draft: { type: 'day', dogId: 'luna', checkin: '', checkout: '', drop: '', pick: '', addons: '' },
     msgs: [
-      { from: 'staff', text: 'Welcome to Leon’s, Jordan. Luna is on the list for tomorrow.', at: yesterdayAt(16, 12) },
+      { from: 'staff', text: 'Welcome to Leon’s. Luna is on the list for tomorrow.', at: yesterdayAt(16, 12) },
       { from: 'me', text: 'Thank you! She’s a little shy at drop-off but warms up fast.', at: yesterdayAt(16, 20) },
       { from: 'staff', text: 'Good to know. We’ll start with a short walk to settle her in.', at: yesterdayAt(16, 31) },
       { from: 'staff', text: 'Luna had a great morning: two play sessions and a long nap.', at: todayAt(11, 5) },
@@ -64,7 +64,7 @@
     ],
     staffNotes: [{ id: 's1', dog: 'luna', at: todayAt(9, 30), text: 'Slow to settle at drop-off, calmer after her first walk.' }],
     updates: [{ id: 'u1', dog: 'luna', at: todayAt(11, 5), text: 'Luna had a great morning: two play sessions and a long nap.' }],
-    profile: { name: 'Jordan Ellis', email: 'jordan.ellis@example.com', phone: '', emergency: 'Casey Ellis' },
+    profile: { name: '', email: '', phone: '', emergency: '' },
     settings: { recap: 'Daily email', notify: true },
   });
   const nextDay = () => { const u = S.requests.filter((x) => x.checkin && (x.status || 'pending') !== 'declined').sort((x, y) => x.checkin.localeCompare(y.checkin))[0]; return u ? new Date(u.checkin + 'T00:00').toLocaleDateString(undefined, { weekday: 'short' }).toUpperCase() : '[DAY]'; };
@@ -290,7 +290,7 @@
         h('div', { class: 'member-wrap' }, card),
         h('div', { class: 'sec-head' }, h('h2', {}, 'You')),
         h('div', { class: 'rows', style: 'margin-top:0' },
-          row('aacct', 'Profile', [p.name || '[Name]', p.email || '[Email]', p.phone || 'Add phone'].join(' · '), () => openSheet('Profile', [field('Name', h('input', { name: 'name', value: p.name, autocomplete: 'name' })), field('Email', h('input', { name: 'email', type: 'email', value: p.email, autocomplete: 'email' })), field('Phone', h('input', { name: 'phone', type: 'tel', value: p.phone, autocomplete: 'tel' }))], (f) => { p.name = String(f.get('name')).trim(); p.email = String(f.get('email')).trim(); p.phone = String(f.get('phone')).trim(); save(); })),
+          row('aacct', 'Profile', [p.name || '[Name]', p.email || '[Email]', p.phone || '[Phone]'].join(' · '), () => openSheet('Profile', [field('Name', h('input', { name: 'name', value: p.name, autocomplete: 'name' })), field('Email', h('input', { name: 'email', type: 'email', value: p.email, autocomplete: 'email' })), field('Phone', h('input', { name: 'phone', type: 'tel', value: p.phone, autocomplete: 'tel' }))], (f) => { p.name = String(f.get('name')).trim(); p.email = String(f.get('email')).trim(); p.phone = String(f.get('phone')).trim(); save(); })),
           row('aheart', 'Emergency contact', p.emergency || 'Add a contact', () => openSheet('Emergency contact', field('Name and phone', h('input', { name: 'v', value: p.emergency })), (f) => { p.emergency = String(f.get('v')).trim(); save(); })),
           row('apay', 'Payment method', 'Not set up yet', () => openSheet('Payment method', [h('p', { class: 'hero-sub', style: 'font-size:18px' }, 'Payments aren’t connected yet. We’ll add a secure card form before anything is billed.'), h('p', { class: 'note', style: 'text-align:left;margin-top:12px' }, 'Don’t enter card details anywhere in this preview.')], () => null, 'Got it')),
           row('abell', 'Notifications', `${S.settings.recap} · ${S.settings.notify ? 'messages on' : 'messages off'}`, () => openSheet('Notifications', [h('div', { class: 'field' }, 'Daily recap', ['Daily email', 'Push notification', 'Off'].map((o) => h('label', { class: 'check', style: 'margin-top:8px' }, h('input', { type: 'radio', name: 'recap', value: o, checked: S.settings.recap === o }), o))), h('label', { class: 'check' }, h('input', { type: 'checkbox', name: 'notify', checked: S.settings.notify }), 'Tell me about new messages'), h('p', { class: 'note', style: 'text-align:left' }, 'Recaps and push alerts aren’t sent in this preview.')], (f) => { S.settings.recap = f.get('recap') || S.settings.recap; S.settings.notify = f.get('notify') === 'on'; save(); }))),
