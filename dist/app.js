@@ -102,7 +102,7 @@
     action,
     h('div', { class: 'hero-text' }, h('h1', { class: 'hero-title', style: size ? `font-size:${size}` : null }, title), sub && h('p', { class: 'hero-sub' }, sub)),
     hint && h('span', { class: 'swipe', 'aria-hidden': 'true' }, ic('achev')));
-  const stats = (rows) => h('div', { class: 'stats' }, rows.map(([v, l, href]) => h(href ? 'a' : 'div', { class: 'stat', href }, h('b', {}, v), h('span', {}, l))));
+  const stats = (rows) => h('div', { class: 'stats' }, rows.map(([v, l]) => h('div', { class: 'stat' }, h('b', {}, v), h('span', {}, l))));
   const pillBtn = (label, icon, onclick) => h('button', { class: 'pill', onclick, type: 'button' }, icon && ic(icon), label);
   const theme = (cls, ...kids) => { $('#screen').className = cls; return h('div', {}, kids); };
 
@@ -119,7 +119,7 @@
       h('div', { class: 'home-logo' }, h('img', { src: 'logos/leons-logo-primary-dark.svg', alt: 'LEON’S Hotel & Day Club' })),
       h('div', { class: 'home-stick' }, hero({ img: 'photos/dog-golden-sitting.webp', pos: '50% 12%', hh: 'calc(100dvh - 86px - 84px)', hint: true, size: 'clamp(40px,12.5vw,54px)', title: ['Welcome back,', h('br'), `${(S.profile.name || '').split(' ')[0] || '[NAME]'}.`], sub: 'Your dog is on the list.' })),
       h('div', { class: 'home-sheet' },
-      h('div', { class: 'home-pin' }, stats([[String(S.dogs.length), 'Dogs', '#/dogs'], [nextDay(), 'Next visit'], [String(S.unread || 0), 'Unread']])),
+      h('div', { class: 'home-pin' }, stats([[String(S.dogs.length), 'Dogs'], [nextDay(), 'Next visit'], [String(S.unread || 0), 'Unread']])),
       h('div', { class: 'body' },
         h('div', { class: 'tiles' },
           tile('#/book', 'forest', 'acal', 'Book a visit', 'We’ll hold a spot.'),
@@ -133,23 +133,14 @@
 
   // ---------- My Dogs ----------
   function dogs() {
-    const human = S.profile.name || '[HUMAN]';
-    const pad2 = (n) => String(n).padStart(2, '0');
     return [
-      h('div', { class: 'dogs-page' },
-        h('div', { class: 'dogs-top' },
-          h('a', { class: 'rbtn', href: '#/home', 'aria-label': 'Back' }, ic('aback')),
-          h('button', { class: 'abtn', type: 'button', onclick: addDog }, ic('aplus'), 'Add a dog')),
-        h('h1', { class: 'dogs-title' }, 'My dogs'),
-        h('p', { class: 'dogs-sub' }, `${S.dogs.length} on the list.`),
-        h('div', { class: 'mcards' }, S.dogs.map((d, i) => h('a', { class: 'mcard', href: `#/dog/${d.id}`, 'aria-label': `${d.name}, member card. Open profile` },
-          h('div', { class: 'mc-main' },
-            h('span', { class: 'mc-label' }, 'Member'),
-            h('div', { class: 'mc-name' }, 'LEON’S'),
-            h('div', { class: 'mc-no' }, `№ 0042-${pad2(i + 1)}`),
-            h('div', { class: 'mc-who' }, `${d.name} · ${human}`),
-            h('div', { class: 'mc-since' }, 'Member since 2026')),
-          d.photo ? h('img', { class: 'mc-photo', src: d.photo, alt: '', style: `object-position:${d.pos || '50% 30%'}` }) : h('div', { class: 'mc-ph' }, `[Photo: tight on ${d.name}’s face]`))))),
+      hero({ img: 'photos/luna-guest.webp', hh: 400, title: 'My dogs', sub: `${S.dogs.length} on the list. All good dogs.`, back: '#/home', action: pillBtn('Add a dog', 'aplus', addDog) }),
+      stats([['6', 'Visits this month'], ['12', 'Nights stayed'], [nextDay(), 'Next visit']]),
+      h('div', { class: 'body' },
+        h('div', { class: 'sec-head' }, h('h2', {}, 'The pack'), h('span', {}, 'Swipe for everyone →')),
+        h('div', { class: 'pack' }, S.dogs.map((d) => h('a', { class: 'dogcard', href: `#/dog/${d.id}`, style: `--pos:${d.pos || '50% 25%'}` },
+          h('img', { src: d.photo || 'photos/luna-guest.webp', alt: d.name }),
+          h('span', { class: 'meta' }, h('b', {}, d.name), h('i', {}, `${d.breed || '[Breed]'} · ${d.age || '[age]'}`), h('small', {}, d.status || 'No visit booked')))))),
     ];
   }
   function addDog() {
@@ -396,7 +387,7 @@
 
   // ---------- router ----------
   const SCREENS = {
-    home: ['t-white', home, 'Home'], dogs: ['t-white', dogs, 'Dogs'], dog: ['t-white', (a) => profile(a), 'Dogs'], book: ['t-cream', book, 'Book'], booked: ['t-cream', booked, 'Book'],
+    home: ['t-navy', home, 'Home'], dogs: ['t-cream', dogs, 'Dogs'], dog: ['t-white', (a) => profile(a), 'Dogs'], book: ['t-cream', book, 'Book'], booked: ['t-cream', booked, 'Book'],
     messages: ['t-forest', messages, 'Messages'], thread: ['t-forest', thread, 'Messages'], today: ['t-navy', today, 'Home'],
     photos: ['t-navy', photos, 'Home'],
     desk: ['t-cream', deskToday, 'dToday'], 'desk-requests': ['t-cream', deskRequests, 'dRequests'], 'desk-dog': ['t-cream', (a) => deskDog(a), 'dToday'], 'desk-thread': ['t-forest', (a) => thread(a || 'team'), 'dMessages'], account: ['t-cream', account, 'Account'],
