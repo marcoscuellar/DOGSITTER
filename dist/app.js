@@ -37,6 +37,10 @@
   try { S = JSON.parse(localStorage.getItem(KEY)) || seed(); } catch { S = seed(); }
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch { /* storage unavailable */ } };
   const dogById = (id) => S.dogs.find((d) => d.id === id) || S.dogs[0];
+  S.requests.forEach((r) => { r.status = r.status || 'pending'; });
+  S.walks = S.walks || [];        // { id, dog, start, end }  timestamps only, no location
+  S.staffNotes = S.staffNotes || []; // private to staff, never shown in the owner app
+  S.updates = S.updates || [];    // owner-facing updates written by staff
   S.profile = S.profile || { name: '', email: '', phone: '', emergency: '' };
   S.settings = S.settings || { recap: 'Daily email', notify: true };
   let profileTab = 'Details';
@@ -83,7 +87,7 @@
           tile('#/today', 'navy', 'asun', 'Today at the club', 'See how the day is going.'),
           tile('#/dogs', '', 'adog', 'My dogs', `${real || S.dogs.length} on the list.`),
           tile('#/messages', '', 'amsg', 'Messages', 'Straight from Leon’s team.')),
-        S.requests.length ? [h('div', { class: 'sec-head', style: 'margin-top:22px' }, h('h2', {}, 'Your requests')), h('div', { class: 'rows', style: 'margin-top:0' }, S.requests.map((r) => h('div', { class: 'row plain' }, ic(r.type === 'day' ? 'asun' : 'abed'), h('span', { class: 'grow' }, h('b', {}, `${r.type === 'day' ? 'Day Club' : 'Hotel Stay'} · ${r.dog}`), h('i', {}, `${day(r.checkin)}${r.checkout ? ' – ' + day(r.checkout) : ''} · requested`)))))] : null),
+        S.requests.length ? [h('div', { class: 'sec-head', style: 'margin-top:22px' }, h('h2', {}, 'Your requests')), h('div', { class: 'rows', style: 'margin-top:0' }, S.requests.map((r) => h('div', { class: 'row plain' }, ic(r.type === 'day' ? 'asun' : 'abed'), h('span', { class: 'grow' }, h('b', {}, `${r.type === 'day' ? 'Day Club' : 'Hotel Stay'} · ${r.dog}`), h('i', {}, `${day(r.checkin)}${r.checkout ? ' – ' + day(r.checkout) : ''} · ${r.status === 'approved' ? 'confirmed' : r.status === 'declined' ? 'declined' : 'requested'}`)))))] : null),
     ];
   }
 
@@ -166,7 +170,7 @@
   }
   function submit() {
     const q = S.draft; const d = dogById(q.dogId);
-    const r = { id: uid(), type: q.type, dog: d.name, checkin: q.checkin, checkout: q.checkout, drop: q.drop, pick: q.pick, addons: q.addons, at: new Date().toISOString() };
+    const r = { id: uid(), type: q.type, dog: d.name, checkin: q.checkin, checkout: q.checkout, drop: q.drop, pick: q.pick, addons: q.addons, status: 'pending', at: new Date().toISOString() };
     S.requests.unshift(r); S.draft = { type: q.type, dogId: q.dogId, checkin: '', checkout: '', drop: '', pick: '', addons: '' }; save(); location.hash = `#/booked/${r.id}`;
   }
   function booked(id) {
@@ -192,12 +196,13 @@
         row('#/thread/booking', h('span', { class: 'avatar navy' }, ic('abell')), 'Booking Confirmed', '[day]', 'Your Day Club visit is set.')),
     ];
   }
+  const inDesk = () => location.hash.startsWith('#/desk');
   function thread(key) {
     if (key !== 'team') return [h('div', { class: 'body' }, h('a', { href: '#/messages', class: 'chip', style: 'display:inline-block;text-decoration:none' }, '← Back'), h('h1', { class: 'hero-title', style: 'margin-top:18px;font-size:48px' }, key === 'care' ? 'Care update' : 'Booking confirmed'), h('div', { class: 'bubble', style: 'margin-top:16px' }, key === 'care' ? 'Photos from today’s play.' : 'Your Day Club visit is set.', h('small', {}, '[time]')))];
     const ta = h('textarea', { 'aria-label': 'Message', placeholder: 'Write a message…' });
     return [h('div', { class: 'body' }, h('a', { href: '#/messages', class: 'chip', style: 'display:inline-block;text-decoration:none' }, '← Back'), h('h1', { class: 'hero-title', style: 'margin-top:18px;font-size:48px' }, 'Leon’s team')),
-      h('div', { class: 'convo' }, S.msgs.map((m) => h('div', { class: 'bubble' + (m.from === 'me' ? ' me' : '') }, m.text, h('small', {}, `${m.from === 'me' ? 'You' : 'Leon’s team'} · ${hhmm(m.at)}`)))),
-      h('form', { class: 'compose', onsubmit: (e) => { e.preventDefault(); if (!ta.value.trim()) return; S.msgs.push({ from: 'me', text: ta.value.trim(), at: new Date().toISOString() }); save(); render(); } }, ta, h('button', { class: 'cta cream', style: 'margin-top:0' }, 'Send'))];
+      h('div', { class: 'convo' }, S.msgs.map((m) => { const mine = inDesk() ? m.from === 'staff' : m.from === 'me'; return h('div', { class: 'bubble' + (mine ? ' me' : '') }, m.text, h('small', {}, `${m.from === 'me' ? 'Owner' : 'Leon’s team'} · ${hhmm(m.at)}`)); })),
+      h('form', { class: 'compose', onsubmit: (e) => { e.preventDefault(); if (!ta.value.trim()) return; S.msgs.push({ from: inDesk() ? 'staff' : 'me', text: ta.value.trim(), at: new Date().toISOString() }); save(); render(); } }, ta, h('button', { class: 'cta cream', style: 'margin-top:0' }, 'Send'))];
   }
 
   // ---------- Photos & Updates ----------
@@ -255,13 +260,86 @@
     ];
   }
 
+  // ---------- Leon's Care Desk (demo role: not real access control) ----------
+  const pending = () => S.requests.filter((r) => (r.status || 'pending') === 'pending');
+  const walkOf = (dogId) => S.walks.filter((w) => w.dog === dogId);
+  const activeWalk = (dogId) => walkOf(dogId).find((w) => !w.end);
+  const real = () => S.dogs.filter((d) => !d.sample);
+  const dogAvatar = (d) => h('span', { class: 'avatar photo' }, h('img', { src: d.photo || 'photos/luna-guest.webp', alt: '', style: `object-position:${d.pos || '50% 25%'}` }));
+
+  function deskToday() {
+    const doneWalks = S.walks.filter((w) => w.end).length;
+    const live = S.walks.filter((w) => !w.end).length;
+    return [
+      hero({ img: 'photos/golden-walk.jpg', pos: '58% 30%', hh: 340, title: 'Today', sub: 'Your day at a glance.', tag: '● CARE DESK' }),
+      stats([[String(pending().length), 'Requests'], [String(live), 'Walking now'], [String(doneWalks), 'Walks done']]),
+      h('div', { class: 'body' },
+        pending().length ? h('a', { class: 'banner', href: '#/desk/requests' }, ic('abell'), h('span', { class: 'grow' }, h('b', {}, `${pending().length} request${pending().length > 1 ? 's' : ''} waiting`), h('i', {}, 'Approve or decline.')), ic('achev', 'chev')) : null,
+        h('div', { class: 'sec-head' }, h('h2', {}, 'Today’s walks'), h('span', {}, 'Tap a dog')),
+        h('div', { class: 'rows', style: 'margin-top:0' }, real().map((d) => { const aw = activeWalk(d.id); const dn = walkOf(d.id).filter((w) => w.end).length;
+          return h('a', { class: 'row', href: `#/desk/dog/${d.id}` }, dogAvatar(d), h('span', { class: 'grow' }, h('b', {}, d.name), h('i', {}, aw ? `Out since ${hhmm(aw.start)}` : dn ? `${dn} walk${dn > 1 ? 's' : ''} done` : '[time] · not started')), h('span', { class: 'status ' + (aw ? 'live' : '') }, aw ? 'WALKING' : dn ? 'DONE' : 'TO DO'), ic('achev', 'chev')); })),
+        h('p', { class: 'note' }, 'Walks record start and end times only. No GPS.')),
+    ];
+  }
+
+  function deskRequests() {
+    const decide = (r, status) => { r.status = status; r.at2 = new Date().toISOString(); save(); render(); };
+    const card = (r) => {
+      const d = S.dogs.find((x) => x.name === r.dog) || S.dogs[0];
+      return h('div', { class: 'req' },
+        h('div', { class: 'req-top' }, dogAvatar(d), h('span', { class: 'grow' }, h('b', {}, r.dog), h('i', {}, `${r.type === 'day' ? 'Day Club' : 'Hotel Stay'} · ${day(r.checkin)}${r.checkout ? ' – ' + day(r.checkout) : ''}`))),
+        (r.drop || r.pick) ? h('p', { class: 'req-line' }, `Drop-off ${r.drop || '[ ]'} · Pick-up ${r.pick || '[ ]'}`) : null,
+        r.addons ? h('p', { class: 'req-line' }, `Add-ons: ${r.addons}`) : null,
+        r.status === 'pending'
+          ? h('div', { class: 'req-actions' }, h('button', { class: 'no', type: 'button', onclick: () => decide(r, 'declined') }, ic('adecline'), 'Decline'), h('button', { class: 'go', type: 'button', onclick: () => decide(r, 'approved') }, ic('acheck'), 'Approve'))
+          : h('p', { class: 'status-line ' + r.status }, r.status === 'approved' ? '✓ Approved' : '✕ Declined'));
+    };
+    const waiting = pending(); const decided = S.requests.filter((r) => r.status !== 'pending');
+    return [
+      hero({ img: 'photos/dog-golden-sitting.webp', pos: '50% 20%', hh: 300, title: 'Requests', sub: `${waiting.length} waiting.`, back: '#/desk' }),
+      h('div', { class: 'body', style: 'padding-top:20px' },
+        waiting.length ? waiting.map(card) : h('div', { class: 'empty' }, h('b', {}, 'Nothing waiting'), h('i', {}, 'New requests from owners show up here.')),
+        decided.length ? [h('div', { class: 'sec-head', style: 'margin-top:22px' }, h('h2', {}, 'Decided')), ...decided.map(card)] : null),
+    ];
+  }
+
+  function deskDog(id) {
+    const d = dogById(id); const aw = activeWalk(d.id); const log = walkOf(d.id).filter((w) => w.end).reverse();
+    const priv = h('textarea', { 'aria-label': 'Private note', placeholder: 'Only staff can see this.' });
+    const upd = h('textarea', { 'aria-label': 'Update for the owner', placeholder: 'A short, friendly note for the owner.' });
+    const care = S.careNotes.filter((n) => n.dog === d.id);
+    const notes = Object.entries(d.notes || {}).filter(([, v]) => v);
+    return [
+      hero({ img: d.photo || 'photos/luna-guest.webp', pos: d.pos, hh: 360, title: d.name, sub: `${d.breed || '[Breed]'} · ${d.age || '[age]'}`, back: '#/desk' }),
+      h('div', { class: 'walkbar' },
+        h('div', { class: 'grow' }, h('b', {}, aw ? 'Walk in progress' : 'Ready for a walk'), h('i', {}, aw ? `Started ${hhmm(aw.start)}` : 'Times only. No GPS.')),
+        h('button', { class: 'go', type: 'button', disabled: !!aw, onclick: () => { S.walks.push({ id: uid(), dog: d.id, start: new Date().toISOString(), end: null }); save(); render(); } }, ic('asun'), 'Start walk'),
+        h('button', { class: 'stop', type: 'button', disabled: !aw, onclick: () => { aw.end = new Date().toISOString(); save(); render(); } }, 'End walk')),
+      h('div', { class: 'body' },
+        h('div', { class: 'sec-head' }, h('h2', {}, 'Care instructions')),
+        h('div', { class: 'rows', style: 'margin-top:0' }, [...care.map((n) => h('div', { class: 'row plain' }, ic('anote'), h('span', { class: 'grow' }, h('b', {}, day(n.date)), h('i', {}, n.text)))), ...notes.map(([k, v]) => h('div', { class: 'row plain' }, ic('aheart'), h('span', { class: 'grow' }, h('b', {}, k[0].toUpperCase() + k.slice(1)), h('i', {}, v))))].concat(care.length || notes.length ? [] : [h('div', { class: 'row plain' }, ic('anote'), h('span', { class: 'grow' }, h('b', {}, 'None on file'), h('i', {}, 'The owner hasn’t added any yet.')))])),
+        h('div', { class: 'sec-head', style: 'margin-top:22px' }, h('h2', {}, 'Walk log')),
+        h('div', { class: 'rows', style: 'margin-top:0' }, log.length ? log.map((w) => h('div', { class: 'row plain' }, ic('aclock'), h('span', { class: 'grow' }, h('b', {}, `${hhmm(w.start)} – ${hhmm(w.end)}`), h('i', {}, day(w.start.slice(0, 10)))))) : [h('div', { class: 'row plain' }, ic('aclock'), h('span', { class: 'grow' }, h('b', {}, 'No walks yet'), h('i', {}, 'Start one above.')))]),
+        h('div', { class: 'sec-head', style: 'margin-top:22px' }, h('h2', {}, 'Private note')),
+        h('form', { class: 'deskform', onsubmit: (e) => { e.preventDefault(); if (!priv.value.trim()) return; S.staffNotes.unshift({ id: uid(), dog: d.id, at: new Date().toISOString(), text: priv.value.trim() }); save(); render(); toast('Private note saved'); } }, h('p', { class: 'note', style: 'text-align:left;margin:0' }, 'Staff only. Owners never see this.'), priv, h('button', { class: 'cta', style: 'margin-top:0;height:48px;font-size:17px' }, 'Save private note')),
+        S.staffNotes.filter((n) => n.dog === d.id).map((n) => h('div', { class: 'row plain deskrow' }, ic('aprivate'), h('span', { class: 'grow' }, h('b', {}, hhmm(n.at)), h('i', {}, n.text)))),
+        h('div', { class: 'sec-head', style: 'margin-top:22px' }, h('h2', {}, 'Update for the owner')),
+        h('form', { class: 'deskform', onsubmit: (e) => { e.preventDefault(); if (!upd.value.trim()) return; S.updates.unshift({ id: uid(), dog: d.id, at: new Date().toISOString(), text: upd.value.trim() }); save(); render(); toast('Update sent to the owner'); } }, upd, h('button', { class: 'cta cream', style: 'margin-top:0;height:48px;font-size:17px' }, 'Send update')),
+        S.updates.filter((n) => n.dog === d.id).map((n) => h('div', { class: 'row plain deskrow' }, ic('amsg'), h('span', { class: 'grow' }, h('b', {}, hhmm(n.at)), h('i', {}, n.text))))),
+    ];
+  }
+
+  function toast(msg) { const t = $('#toast'); t.textContent = msg; clearTimeout(toast.t); toast.t = setTimeout(() => (t.textContent = ''), 2400); }
+
   // ---------- Today at the club ----------
   function today() {
-    const steps = [['acheck', 'Checked In', '[time]'], ['acheck', 'Play Time', '[time]'], ['aopen', 'Rest & Recharge', '[time]'], ['aopen', 'Afternoon Play', '[time]']];
+    const w = S.walks.filter((x) => x.dog === 'luna').slice(-1)[0];
+    const steps = [['acheck', 'Checked In', '[time]'], [w ? (w.end ? 'acheck' : 'aopen') : 'aopen', 'Walk', w ? (w.end ? `${hhmm(w.start)} – ${hhmm(w.end)}` : `since ${hhmm(w.start)}`) : '[time]'], ['aopen', 'Rest & Recharge', '[time]'], ['aopen', 'Afternoon Play', '[time]']];
+    const ups = S.updates.filter((u) => u.dog === 'luna');
     return [
       hero({ img: 'photos/luna-guest.webp', hh: 380, title: ['Luna’s', h('br'), 'Day Club'], sub: '[Drop-off] – [Pick-up] · having a big one.', tag: '● TODAY AT THE CLUB' }),
       stats([['[#]', 'Meals'], ['[#]', 'Play sessions'], ['[#]', 'Photos']]),
-      h('div', { class: 'body' }, h('div', { class: 'card' }, steps.map(([i, t, tm]) => h('div', { class: 'step' }, ic(i), h('span', {}, t), h('small', {}, tm)))),
+      h('div', { class: 'body' }, h('div', { class: 'card' }, steps.map(([i, t, tm]) => h('div', { class: 'step' }, ic(i), h('span', {}, t), h('small', {}, tm)))), ups.length ? h('div', { class: 'rows' }, ups.map((u) => h('div', { class: 'row plain' }, ic('amsg'), h('span', { class: 'grow' }, h('b', {}, `Leon’s team · ${hhmm(u.at)}`), h('i', {}, u.text))))) : null,
         h('a', { class: 'cta cream', href: '#/photos' }, ic('acam'), `View photos (${SHOTS.filter((s) => s.when === 'today').length})`)),
     ];
   }
@@ -270,15 +348,19 @@
   const SCREENS = {
     home: ['t-cream', home, 'Home'], dogs: ['t-cream', dogs, 'Dogs'], dog: ['t-white', (a) => profile(a), 'Dogs'], book: ['t-cream', book, 'Book'], booked: ['t-cream', booked, 'Book'],
     messages: ['t-forest', messages, 'Messages'], thread: ['t-forest', thread, 'Messages'], today: ['t-navy', today, 'Home'],
-    photos: ['t-navy', photos, 'Home'], account: ['t-cream', account, 'Account'],
+    photos: ['t-navy', photos, 'Home'],
+    desk: ['t-cream', deskToday, 'dToday'], 'desk-requests': ['t-cream', deskRequests, 'dRequests'], 'desk-dog': ['t-cream', (a) => deskDog(a), 'dToday'], 'desk-thread': ['t-forest', (a) => thread(a || 'team'), 'dMessages'], account: ['t-cream', account, 'Account'],
   };
   const TABS = { Home: 'home', Book: 'book', Dogs: 'dogs', Messages: 'messages', Account: 'account' };
   function render() {
-    const [r = 'home', arg] = location.hash.replace(/^#\/?/, '').split('/');
+    let [r = 'home', arg, arg2] = location.hash.replace(/^#\/?/, '').split('/');
+    if (r === 'desk') { if (arg === 'requests') r = 'desk-requests'; else if (arg === 'dog') { r = 'desk-dog'; arg = arg2; } else if (arg === 'messages') { r = 'desk-thread'; arg = 'team'; } }
+    const desk = r.startsWith('desk');
+    document.body.classList.toggle('desk', desk);
     const [cls, fn, tab] = SCREENS[r] || SCREENS.home;
     $('#screen').className = cls;
     $('#screen').replaceChildren(...[fn(arg)].flat().filter(Boolean));
-    document.querySelectorAll('.tabs a').forEach((a) => (a.dataset.tab === TABS[tab] ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current')));
+    document.querySelectorAll('.tabs a').forEach((a) => (a.dataset.tab === (desk ? tab : TABS[tab]) ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current')));
     document.title = ({ home: 'LEON’S', dogs: 'My dogs · LEON’S', dog: 'Dog · LEON’S', book: 'Book a visit · LEON’S', messages: 'Messages · LEON’S', today: 'Today · LEON’S' })[r] || 'LEON’S';
   }
   addEventListener('hashchange', () => { render(); scrollTo(0, 0); $('#screen').focus({ preventScroll: true }); });
