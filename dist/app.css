@@ -227,3 +227,9 @@ body.home .app{box-shadow:none}
 .home-sheet{position:relative;z-index:2;background:var(--navy);border-radius:28px 28px 0 0;margin-top:-28px;padding-top:4px;min-height:60vh}
 .home-stick .hero-text{bottom:72px}
 .home-stick .swipe{bottom:40px}
+
+/* Home: logo locks at the top; the stats card locks right under it; everything else scrolls behind */
+.home-logo{position:sticky;top:0;z-index:10;background:var(--navy)}
+.home-stick{top:84px}
+.home-pin{position:sticky;top:84px;z-index:5;background:var(--navy);padding:12px 16px}
+body.home .home-pin .stats{margin:0}

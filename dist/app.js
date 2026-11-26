@@ -116,11 +116,10 @@
     const real = S.dogs.filter((d) => !d.sample).length;
     const tile = (href, cls, icon, name, sub) => h('a', { class: 'tile ' + cls, href }, ic(icon), h('span', {}, h('b', {}, name), h('i', {}, sub)));
     return [
-      h('div', { class: 'home-stick' },
       h('div', { class: 'home-logo' }, h('img', { src: 'logos/leons-logo-primary-dark.svg', alt: 'LEON’S Hotel & Day Club' })),
-      hero({ img: 'photos/dog-golden-sitting.webp', pos: '50% 12%', hh: 'calc(100dvh - 86px - 84px)', hint: true, size: 'clamp(40px,12.5vw,54px)', title: ['Welcome back,', h('br'), `${(S.profile.name || '').split(' ')[0] || '[NAME]'}.`], sub: 'Your dog is on the list.' })),
+      h('div', { class: 'home-stick' }, hero({ img: 'photos/dog-golden-sitting.webp', pos: '50% 12%', hh: 'calc(100dvh - 86px - 84px)', hint: true, size: 'clamp(40px,12.5vw,54px)', title: ['Welcome back,', h('br'), `${(S.profile.name || '').split(' ')[0] || '[NAME]'}.`], sub: 'Your dog is on the list.' })),
       h('div', { class: 'home-sheet' },
-      stats([[String(S.dogs.length), 'Dogs'], [nextDay(), 'Next visit'], [String(S.unread || 0), 'Unread']]),
+      h('div', { class: 'home-pin' }, stats([[String(S.dogs.length), 'Dogs'], [nextDay(), 'Next visit'], [String(S.unread || 0), 'Unread']])),
       h('div', { class: 'body' },
         h('div', { class: 'tiles' },
           tile('#/book', 'forest', 'acal', 'Book a visit', 'We’ll hold a spot.'),
