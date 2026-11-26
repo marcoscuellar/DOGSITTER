@@ -38,13 +38,14 @@ button{font:inherit;color:inherit}
 .photo{display:block;width:100%;height:100%;object-fit:cover;object-position:center 40%}
 
 /* Home */
-.hero{position:relative;display:flex;flex-direction:column;min-height:min(520px,66vh);min-height:min(520px,66dvh);background:var(--photo);color:var(--leons-bone)}
-.hero-brand{text-align:center;padding-top:var(--leons-space-5)}
+.hero{position:relative;display:flex;flex-direction:column;background:var(--leons-ink);color:var(--leons-bone)}
+.hero-brand{text-align:center;padding:var(--leons-space-5) 0 var(--leons-space-4)}
+.hero-photo{height:min(380px,48vh);background:var(--photo);overflow:hidden}
 .hero-brand img{width:44px;height:auto}
 .hero-brand .name{font-family:var(--leons-font-display);font-size:34px;line-height:1;text-transform:uppercase;margin-top:var(--leons-space-1)}
 .hero-brand .label{letter-spacing:.3em;margin-top:var(--leons-space-1)}
 .hero-shot{font-style:italic;font-size:15px;line-height:1.4;padding:var(--leons-space-6) 22px 0}
-.hero-welcome{margin-top:auto;background:var(--leons-ink);padding:var(--leons-space-4) 22px var(--leons-space-4)}
+.hero-welcome{background:var(--leons-ink);padding:var(--leons-space-4) 22px var(--leons-space-4)}
 .hero-welcome h1{font-family:var(--leons-font-display);font-weight:400;font-size:40px;line-height:.95;text-transform:uppercase;letter-spacing:.01em}
 .hero-welcome p{font-style:italic;font-size:16px;margin-top:6px}
 .tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:var(--leons-space-4) var(--leons-space-4) var(--leons-space-5)}

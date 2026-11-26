@@ -31,7 +31,7 @@
   const seed = () => ({
     // Luna's photo is the kit's sample. The two bracketed dogs only show the multi-dog layout.
     dogs: [
-      { id: 'd1', name: 'Luna', photo: 'photos/luna-guest-PLACEHOLDER.webp' },
+      { id: 'd1', name: 'Luna', photo: 'photos/dog-golden-sitting.webp' },
       { id: 'd2', name: '[DOG 2]', photo: 'photos/dog-small-ears-up.webp', sample: true },
       { id: 'd3', name: '[DOG 3]', photo: 'photos/dog-beagle-ball.webp', sample: true },
     ],
@@ -80,7 +80,7 @@
           h('img', { src: 'logos/leons-head-mark-bone.svg', alt: '' }),
           h('div', { class: 'name' }, 'LEON’S'),
           h('div', { class: 'label' }, 'Hotel & Day Club')),
-        h('p', { class: 'hero-shot' }, '[Photo: a golden retriever stretched out on a suite bed, warm lamp light, looking right at the camera]'),
+        h('div', { class: 'hero-photo' }, h('img', { class: 'photo', src: 'photos/dog-golden-sitting.webp', alt: 'A golden retriever sitting in the park, tongue out' })),
         h('div', { class: 'hero-welcome' }, h('h1', {}, 'Welcome back,', h('br'), '[NAME].'), h('p', {}, 'Your dog is on the list.'))),
       h('div', { class: 'tiles' },
         tile('#/book/hotel', 'hotel-stay', 'Book a stay'),
