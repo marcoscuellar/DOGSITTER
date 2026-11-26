@@ -37,6 +37,8 @@
   try { S = JSON.parse(localStorage.getItem(KEY)) || seed(); } catch { S = seed(); }
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch { /* storage unavailable */ } };
   const dogById = (id) => S.dogs.find((d) => d.id === id) || S.dogs[0];
+  S.profile = S.profile || { name: '', email: '', phone: '', emergency: '' };
+  S.settings = S.settings || { recap: 'Daily email', notify: true };
   let profileTab = 'Details';
 
   // ---------- sheet ----------
@@ -225,6 +227,34 @@
     ];
   }
 
+  // ---------- Account ----------
+  function account() {
+    const p = S.profile;
+    const luna = dogById('luna');
+    const row = (icon, title, note, onclick, extra) => h('button', { class: 'row', type: 'button', onclick }, ic(icon), h('span', { class: 'grow' }, h('b', {}, title), h('i', {}, note)), extra || ic('achev', 'chev'));
+    const card = h('div', { class: 'member', 'aria-label': 'Member card' },
+      h('div', { class: 'member-main' },
+        h('span', { class: 'mono' }, 'Member № [0001]'),
+        h('div', { class: 'member-name' }, 'LEON’S'),
+        h('div', { class: 'member-foot' }, h('span', {}, `${luna.name} · ${p.name || '[HUMAN]'}`), h('span', {}, 'Member since [YEAR]'))),
+      h('div', { class: 'qr', role: 'img', 'aria-label': 'Space for the check-in QR code' }, h('span', {}, '[QR]', h('br'), 'CHECK-IN')));
+    return [
+      hero({ img: 'photos/luna-guest.webp', pos: '76% 25%', hh: 300, title: 'Account', sub: p.name ? `Hello, ${p.name}.` : 'Your household at Leon’s.', back: '#/home' }),
+      h('div', { class: 'body', style: 'padding-top:0' },
+        h('div', { class: 'member-wrap' }, card),
+        h('div', { class: 'sec-head' }, h('h2', {}, 'You')),
+        h('div', { class: 'rows', style: 'margin-top:0' },
+          row('aacct', 'Profile', [p.name || '[Name]', p.email || '[Email]', p.phone || '[Phone]'].join(' · '), () => openSheet('Profile', [field('Name', h('input', { name: 'name', value: p.name, autocomplete: 'name' })), field('Email', h('input', { name: 'email', type: 'email', value: p.email, autocomplete: 'email' })), field('Phone', h('input', { name: 'phone', type: 'tel', value: p.phone, autocomplete: 'tel' }))], (f) => { p.name = String(f.get('name')).trim(); p.email = String(f.get('email')).trim(); p.phone = String(f.get('phone')).trim(); save(); })),
+          row('aheart', 'Emergency contact', p.emergency || '[Name · phone]', () => openSheet('Emergency contact', field('Name and phone', h('input', { name: 'v', value: p.emergency })), (f) => { p.emergency = String(f.get('v')).trim(); save(); })),
+          row('apay', 'Payment method', '[No payment method yet]', () => openSheet('Payment method', [h('p', { class: 'hero-sub', style: 'font-size:18px' }, 'Payments aren’t connected yet. We’ll add a secure card form before anything is billed.'), h('p', { class: 'note', style: 'text-align:left;margin-top:12px' }, 'Don’t enter card details anywhere in this preview.')], () => null, 'Got it')),
+          row('abell', 'Notifications', `${S.settings.recap} · ${S.settings.notify ? 'messages on' : 'messages off'}`, () => openSheet('Notifications', [h('div', { class: 'field' }, 'Daily recap', ['Daily email', 'Push notification', 'Off'].map((o) => h('label', { class: 'check', style: 'margin-top:8px' }, h('input', { type: 'radio', name: 'recap', value: o, checked: S.settings.recap === o }), o))), h('label', { class: 'check' }, h('input', { type: 'checkbox', name: 'notify', checked: S.settings.notify }), 'Tell me about new messages'), h('p', { class: 'note', style: 'text-align:left' }, 'Recaps and push alerts aren’t sent in this preview.')], (f) => { S.settings.recap = f.get('recap') || S.settings.recap; S.settings.notify = f.get('notify') === 'on'; save(); }))),
+        h('div', { class: 'sec-head', style: 'margin-top:22px' }, h('h2', {}, 'Demo')),
+        h('div', { class: 'rows', style: 'margin-top:0' },
+          h('a', { class: 'row', href: '#/desk' }, ic('abell'), h('span', { class: 'grow' }, h('b', {}, 'Open Leon’s Care Desk'), h('i', {}, 'Staff view. A demo switch, not a real sign-in.')), ic('achev', 'chev')),
+          row('aopen', 'Reset demo data', 'Clears everything saved in this browser.', () => openSheet('Reset demo data?', h('p', { class: 'hero-sub', style: 'font-size:18px' }, 'This clears the dogs, requests and messages you added in this browser.'), () => { try { localStorage.removeItem(KEY); } catch { /* ignore */ } location.hash = '#/home'; location.reload(); return null; }, 'Reset')))),
+    ];
+  }
+
   // ---------- Today at the club ----------
   function today() {
     const steps = [['acheck', 'Checked In', '[time]'], ['acheck', 'Play Time', '[time]'], ['aopen', 'Rest & Recharge', '[time]'], ['aopen', 'Afternoon Play', '[time]']];
@@ -240,7 +270,7 @@
   const SCREENS = {
     home: ['t-cream', home, 'Home'], dogs: ['t-cream', dogs, 'Dogs'], dog: ['t-white', (a) => profile(a), 'Dogs'], book: ['t-cream', book, 'Book'], booked: ['t-cream', booked, 'Book'],
     messages: ['t-forest', messages, 'Messages'], thread: ['t-forest', thread, 'Messages'], today: ['t-navy', today, 'Home'],
-    photos: ['t-navy', photos, 'Home'], account: ['t-white', () => soon('Account', 'Account and payments come in the next build.'), 'Account'],
+    photos: ['t-navy', photos, 'Home'], account: ['t-cream', account, 'Account'],
   };
   const TABS = { Home: 'home', Book: 'book', Dogs: 'dogs', Messages: 'messages', Account: 'account' };
   function render() {

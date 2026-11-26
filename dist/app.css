@@ -156,3 +156,13 @@ dialog h2{font-family:var(--display);font-weight:400;font-size:34px;text-transfo
 .shot-ph.navy{background:#16294a}
 .chips.on-dark .chip{background:rgba(244,238,226,.14);color:var(--cream)}
 .chips.on-dark .chip[aria-pressed=true]{background:var(--cream);color:var(--forest)}
+
+/* Account: member card with a QR spot */
+.member-wrap{position:relative;z-index:4;margin:-34px 0 14px}
+.member{display:grid;grid-template-columns:1fr 112px;gap:14px;background:var(--navy);color:var(--cream);border-radius:24px;padding:18px;box-shadow:var(--shadow)}
+.member-main{display:flex;flex-direction:column;justify-content:space-between;min-width:0}
+.mono{font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#E3C79A}
+.member-name{font-family:var(--display);font-size:clamp(46px,14vw,60px);line-height:.9;letter-spacing:.01em;margin:10px 0 14px}
+.member-foot{display:flex;flex-direction:column;gap:2px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border-top:1px solid rgba(244,238,226,.25);padding-top:10px}
+.qr{align-self:center;aspect-ratio:1;background:var(--cream);color:var(--ink);border-radius:14px;display:flex;align-items:center;justify-content:center;text-align:center;padding:8px;border:2px dashed var(--open)}
+.qr span{font-size:11px;font-weight:700;letter-spacing:.08em;line-height:1.3}
