@@ -35,7 +35,7 @@ a{color:inherit}
 .circle .ic{width:20px;height:20px}
 .pill{right:16px;height:42px;padding:0 16px;border-radius:21px;background:var(--cream);color:var(--forest);gap:6px;font-size:13px;font-weight:700}
 .pill .ic{width:18px;height:18px}
-.tag{left:16px;right:auto;color:var(--ink);letter-spacing:.08em;font-size:12px;font-weight:700;padding:0 14px;height:auto;min-height:34px}
+.pill.tag{left:16px;right:auto;width:auto;white-space:nowrap;color:var(--ink);letter-spacing:.08em;font-size:12px;font-weight:700;padding:0 14px;height:34px}
 
 /* Stats card floats over the photo edge */
 .stats{position:relative;z-index:4;margin:-30px 16px 0;min-height:88px;border-radius:22px;background:var(--white);color:var(--ink);display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:center;box-shadow:var(--shadow)}
@@ -138,3 +138,21 @@ dialog h2{font-family:var(--display);font-weight:400;font-size:34px;text-transfo
 .empty{padding:36px 8px;text-align:center}
 .empty b{display:block;font-family:var(--display);font-weight:400;font-size:30px;text-transform:uppercase;line-height:1}
 .empty i{display:block;font-family:var(--serif);font-size:16px;margin-top:8px}
+
+/* Photos & Updates */
+.feature{margin-top:16px}
+.shot{position:relative;display:block;width:100%;aspect-ratio:1;border:0;padding:0;border-radius:20px;overflow:hidden;background:var(--forest);color:var(--cream);text-align:left;font-family:var(--serif);font-style:italic;font-size:13px;line-height:1.3}
+.shot.navy{background:#16294a}.shot.forest{background:var(--forest)}
+.shot>span{display:block;padding:12px}
+.shot>img{width:100%;height:100%;object-fit:cover;display:block}
+.feature .shot{aspect-ratio:4/3;border-radius:24px}
+.cap{padding:12px 4px 0;color:var(--cream)}
+.capline{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:700;letter-spacing:.12em}
+.capline .ic{width:18px;height:18px}
+.cap p{font-family:var(--serif);font-style:italic;font-size:17px;margin-top:6px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+.lightbox{display:block;width:100%;border-radius:18px}
+.shot-ph{aspect-ratio:4/3;border-radius:18px;padding:16px;font-family:var(--serif);font-style:italic;font-size:17px;background:var(--forest);color:var(--cream)}
+.shot-ph.navy{background:#16294a}
+.chips.on-dark .chip{background:rgba(244,238,226,.14);color:var(--cream)}
+.chips.on-dark .chip[aria-pressed=true]{background:var(--cream);color:var(--forest)}

@@ -56,7 +56,7 @@
   const hero = ({ img, pos, hh, title, sub, back, action, tag, size }) => h('div', { class: 'hero', style: `--hh:${hh || 400}px;--pos:${pos || '76% 25%'}` },
     h('img', { src: img, alt: '' }),
     back && h('a', { class: 'circle', href: back, 'aria-label': 'Back' }, ic('aback')),
-    tag && h('span', { class: 'circle pill tag' }, tag),
+    tag && h('span', { class: 'pill tag' }, tag),
     action,
     h('div', { class: 'hero-text' }, h('h1', { class: 'hero-title', style: size ? `font-size:${size}` : null }, title), sub && h('p', { class: 'hero-sub' }, sub)));
   const stats = (rows) => h('div', { class: 'stats' }, rows.map(([v, l]) => h('div', { class: 'stat' }, h('b', {}, v), h('span', {}, l))));
@@ -198,6 +198,33 @@
       h('form', { class: 'compose', onsubmit: (e) => { e.preventDefault(); if (!ta.value.trim()) return; S.msgs.push({ from: 'me', text: ta.value.trim(), at: new Date().toISOString() }); save(); render(); } }, ta, h('button', { class: 'cta cream', style: 'margin-top:0' }, 'Send'))];
   }
 
+  // ---------- Photos & Updates ----------
+  let photoTab = 'Today';
+  const SHOTS = [
+    { id: 1, when: 'today', img: 'photos/golden-walk.jpg', pos: '58% 30%', tag: '[TIME] · WALK', cap: '[Caption from the care team.]', alt: 'A golden retriever out on a walk, leash in hand' },
+    { id: 2, when: 'today', ph: '[Photo: nap on the suite bed]', tone: 'forest' },
+    { id: 3, when: 'today', ph: '[Photo: bath time, eyes closed]', tone: 'navy' },
+    { id: 4, when: 'today', ph: '[Photo: treat from Leon’s hand]', tone: 'forest' },
+    { id: 5, when: 'stay', ph: '[Photo: three dogs mid-run across the play yard, one with a ball, shot low at dog height]', tone: 'navy' },
+    { id: 6, when: 'stay', ph: '[Photo: Luna settling in on arrival day]', tone: 'forest' },
+  ];
+  function photos() {
+    const items = photoTab === 'Today' ? SHOTS.filter((s) => s.when === 'today') : SHOTS;
+    const big = items[0];
+    const tile = (s) => h('button', { class: 'shot ' + (s.tone || ''), type: 'button', 'aria-label': s.img ? s.alt : s.ph,
+      onclick: () => openSheet('Photo', [s.img ? h('img', { class: 'lightbox', src: s.img, alt: s.alt }) : h('div', { class: 'shot-ph ' + (s.tone || '') }, s.ph), h('p', { class: 'hero-sub', style: 'margin-top:12px' }, s.cap || '[Caption from the care team.]')], () => null, 'Close') },
+      s.img ? h('img', { src: s.img, alt: '', style: `object-position:${s.pos || '50% 30%'}` }) : h('span', {}, s.ph));
+    return [
+      hero({ img: 'photos/golden-walk.jpg', pos: '58% 30%', hh: 330, title: ['Photos &', h('br'), 'updates'], sub: 'Straight from the day.', back: '#/home' }),
+      stats([[String(SHOTS.filter((s) => s.when === 'today').length), 'Photos today'], ['[#]', 'Updates'], [String(SHOTS.length), 'This stay']]),
+      h('div', { class: 'body' },
+        h('div', { class: 'chips on-dark', role: 'group', 'aria-label': 'Show' }, ['Today', 'This stay', 'All'].map((t) => h('button', { class: 'chip', 'aria-pressed': String(t === photoTab), onclick: () => { photoTab = t; render(); } }, t))),
+        big && h('div', { class: 'feature' }, tile(big), h('div', { class: 'cap' }, h('span', { class: 'capline' }, ic('acam'), big.tag || '[TIME] · PLAY GROUP'), h('p', {}, big.cap || '[Caption from the care team.]'))),
+        h('div', { class: 'grid' }, items.slice(1).map(tile)),
+        photoTab === 'Today' ? h('button', { class: 'cta cream', onclick: () => { photoTab = 'All'; render(); } }, ic('acam'), `View all (${SHOTS.length})`) : null),
+    ];
+  }
+
   // ---------- Today at the club ----------
   function today() {
     const steps = [['acheck', 'Checked In', '[time]'], ['acheck', 'Play Time', '[time]'], ['aopen', 'Rest & Recharge', '[time]'], ['aopen', 'Afternoon Play', '[time]']];
@@ -205,7 +232,7 @@
       hero({ img: 'photos/luna-guest.webp', hh: 380, title: ['Luna’s', h('br'), 'Day Club'], sub: '[Drop-off] – [Pick-up] · having a big one.', tag: '● TODAY AT THE CLUB' }),
       stats([['[#]', 'Meals'], ['[#]', 'Play sessions'], ['[#]', 'Photos']]),
       h('div', { class: 'body' }, h('div', { class: 'card' }, steps.map(([i, t, tm]) => h('div', { class: 'step' }, ic(i), h('span', {}, t), h('small', {}, tm)))),
-        h('a', { class: 'cta cream', href: '#/photos' }, ic('acam'), 'View photos ([#])')),
+        h('a', { class: 'cta cream', href: '#/photos' }, ic('acam'), `View photos (${SHOTS.filter((s) => s.when === 'today').length})`)),
     ];
   }
 
@@ -213,7 +240,7 @@
   const SCREENS = {
     home: ['t-cream', home, 'Home'], dogs: ['t-cream', dogs, 'Dogs'], dog: ['t-white', (a) => profile(a), 'Dogs'], book: ['t-cream', book, 'Book'], booked: ['t-cream', booked, 'Book'],
     messages: ['t-forest', messages, 'Messages'], thread: ['t-forest', thread, 'Messages'], today: ['t-navy', today, 'Home'],
-    photos: ['t-cream', () => soon('Photos', 'Photos from the club arrive in the next build.'), 'Home'], account: ['t-white', () => soon('Account', 'Account and payments come in the next build.'), 'Account'],
+    photos: ['t-navy', photos, 'Home'], account: ['t-white', () => soon('Account', 'Account and payments come in the next build.'), 'Account'],
   };
   const TABS = { Home: 'home', Book: 'book', Dogs: 'dogs', Messages: 'messages', Account: 'account' };
   function render() {
