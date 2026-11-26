@@ -37,22 +37,25 @@ button{font:inherit;color:inherit}
 .shot{background:var(--photo);color:var(--leons-bone);font-style:italic;line-height:1.35;padding:var(--leons-space-3);overflow:hidden}
 .photo{display:block;width:100%;height:100%;object-fit:cover;object-position:center 40%}
 
-/* Home */
-.hero{position:relative;display:flex;flex-direction:column;background:var(--leons-ink);color:var(--leons-bone)}
-.hero-brand{text-align:center;padding:var(--leons-space-4) 0 var(--leons-space-3)}
-.hero-photo{height:clamp(220px,32vh,300px);background:var(--photo);overflow:hidden}
-.hero-photo .photo{object-position:center 4%}
-.hero-brand img{width:44px;height:auto}
-.hero-brand .name{font-family:var(--leons-font-display);font-size:34px;line-height:1;text-transform:uppercase;margin-top:var(--leons-space-1)}
-.hero-brand .label{letter-spacing:.3em;margin-top:var(--leons-space-1)}
-.hero-shot{font-style:italic;font-size:15px;line-height:1.4;padding:var(--leons-space-6) 22px 0}
-.hero-welcome{background:var(--leons-ink);padding:var(--leons-space-3) 22px var(--leons-space-4)}
-.hero-welcome h1{font-family:var(--leons-font-display);font-weight:400;font-size:40px;line-height:.95;text-transform:uppercase;letter-spacing:.01em}
-.hero-welcome p{font-style:italic;font-size:16px;margin-top:6px}
-.tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:var(--leons-space-4) var(--leons-space-4) var(--leons-space-5)}
-.tile{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--leons-space-2);min-height:120px;background:var(--card);border:var(--leons-border);color:var(--leons-ink);text-decoration:none;font-family:var(--leons-font-display);font-size:18px;letter-spacing:.04em;text-transform:uppercase;cursor:pointer}
-.tile .ic{width:28px;height:28px}
+/* Home: membership pass, then the welcome, then the four doors */
+.home-top{display:flex;justify-content:space-between;align-items:center;background:var(--leons-ink);color:var(--leons-bone);padding:var(--leons-space-3) var(--leons-space-4)}
+.home-brand{display:flex;align-items:center;gap:var(--leons-space-3);font-family:var(--leons-font-display);font-size:30px;line-height:1;letter-spacing:.01em}
+.home-top img{height:28px;width:auto}.home-top .label{color:var(--leons-tan)}
+.pass-photo{height:clamp(340px,56vh,500px);background:var(--photo);overflow:hidden}
+.pass-photo .photo{filter:grayscale(1) contrast(1.15);object-position:center 6%}
+.hatch{height:12px}
+.welcome{padding:var(--leons-space-6) var(--leons-space-4) var(--leons-space-2)}
+.welcome h1{font-family:var(--leons-font-display);font-weight:400;font-size:clamp(48px,14vw,64px);line-height:.95;text-transform:uppercase;letter-spacing:.01em}
+.welcome p{font-size:20px;margin-top:var(--leons-space-2)}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:var(--leons-space-4) var(--leons-space-4) var(--leons-space-6)}
+.tile{display:flex;flex-direction:column;justify-content:space-between;gap:var(--leons-space-6);min-height:172px;padding:var(--leons-space-4);background:var(--card);border:var(--leons-border);color:var(--leons-ink);text-decoration:none}
 .tile:hover{background:var(--leons-bone)}
+.tile-top{display:flex;justify-content:space-between;align-items:flex-start}
+.tile .label{color:var(--leons-cognac)}.tile .ic{width:28px;height:28px}
+.tile-name{display:block;font-family:var(--leons-font-display);font-size:28px;line-height:.95;text-transform:uppercase;letter-spacing:.01em}
+.tile-sub{display:block;font-style:italic;font-size:14px;line-height:1.3;margin-top:6px}
+.tile--primary{background:var(--leons-cognac);border-color:var(--leons-cognac);color:var(--leons-bone)}
+.tile--primary:hover{background:#6f3a16;border-color:#6f3a16}.tile--primary .label{color:var(--leons-bone)}
 
 /* Tab bar */
 .tabs{position:sticky;bottom:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));background:var(--leons-ink);color:var(--leons-bone);border-top:1px solid var(--leons-line);z-index:5}
@@ -63,12 +66,12 @@ button{font:inherit;color:inherit}
 
 /* My dogs */
 .dogs{display:flex;flex-direction:column;gap:var(--leons-space-4)}
-.dog{display:flex;min-height:130px;width:100%;padding:0;text-align:left;cursor:pointer;color:inherit}
+.dog{display:flex;min-height:172px;width:100%;padding:0;text-align:left;cursor:pointer;color:inherit}
 .dog:hover{background:var(--leons-bone)}
-.dog .shot{width:128px;flex:none;font-size:12px}
+.dog .shot{width:140px;flex:none;font-size:12px}
 .dog .shot:has(img){padding:0}
 .dog-body{flex:1;min-width:0;padding:14px;display:flex;flex-direction:column;justify-content:center}
-.dog-name{font-family:var(--leons-font-display);font-size:28px;line-height:1;text-transform:uppercase;overflow-wrap:anywhere}
+.dog-name{font-family:var(--leons-font-display);font-size:40px;line-height:.95;text-transform:uppercase;overflow-wrap:anywhere;margin-top:var(--leons-space-1)}
 .dog-breed{font-style:italic;font-size:14px;margin-top:4px}
 .dog-meta{margin-top:6px}
 .dog .ic{align-self:center;margin-right:12px;width:18px;height:18px}
@@ -113,3 +116,11 @@ dialog h2{font-size:var(--leons-text-h2);margin-bottom:var(--leons-space-4)}
 .sheet-actions{display:flex;gap:var(--leons-space-3);margin-top:var(--leons-space-4)}
 .sheet-actions .leons-btn{flex:1}
 .err{color:var(--leons-cognac);font-style:italic;margin-bottom:var(--leons-space-3)}
+
+/* Titles + ticket */
+.eyebrow{display:block;margin-bottom:var(--leons-space-2)}
+.lede{margin-top:var(--leons-space-2);font-size:18px}
+.ticket{background:var(--leons-ink);color:var(--leons-bone);padding:var(--leons-space-4)}
+.ticket .label{color:var(--leons-tan)}
+.ticket-main{font-family:var(--leons-font-display);font-size:34px;line-height:1;text-transform:uppercase;letter-spacing:.01em;margin:var(--leons-space-2) 0 6px;overflow-wrap:anywhere}
+.ticket p{font-style:italic;font-size:17px}

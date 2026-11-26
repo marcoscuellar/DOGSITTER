@@ -73,34 +73,38 @@
 
   // ---------- Home ----------
   function home() {
-    const tile = (href, ic, text) => h('a', { class: 'tile', href }, icon(ic), text);
+    const tile = (href, ic, tag, name, sub, primary) => h('a', { class: 'tile' + (primary ? ' tile--primary' : ''), href },
+      h('span', { class: 'tile-top' }, h('span', { class: 'label' }, tag), icon(ic)),
+      h('span', {}, h('span', { class: 'tile-name' }, name), h('span', { class: 'tile-sub' }, sub)));
+    const n = S.dogs.filter((d) => !d.sample).length;
     return h('div', {},
-      h('section', { class: 'hero on-ink', 'aria-label': 'Welcome' },
-        h('div', { class: 'hero-brand' },
-          h('img', { src: 'logos/leons-head-mark-bone.svg', alt: '' }),
-          h('div', { class: 'name' }, 'LEON’S'),
-          h('div', { class: 'label' }, 'Hotel & Day Club')),
-        h('div', { class: 'hero-photo' }, h('img', { class: 'photo', src: 'photos/dog-golden-sitting.webp', alt: 'A golden retriever sitting in the park, tongue out' })),
-        h('div', { class: 'hero-welcome' }, h('h1', {}, 'Welcome back,', h('br'), '[NAME].'), h('p', {}, 'Your dog is on the list.'))),
+      h('section', { class: 'on-ink', 'aria-label': 'Membership' },
+        h('div', { class: 'home-top' }, h('span', { class: 'home-brand' }, h('img', { src: 'logos/leons-head-mark-bone.svg', alt: '' }), 'LEON’S'), h('span', { class: 'label' }, 'Uptown · Chicago')),
+        h('div', { class: 'pass-photo' }, h('img', { class: 'photo', src: 'photos/dog-golden-sitting.webp', alt: 'A golden retriever sitting in the park, tongue out' })),
+        h('div', { class: 'leons-pattern-hatch hatch', 'aria-hidden': 'true' })),
+      h('div', { class: 'welcome' }, h('span', { class: 'label label--cognac eyebrow' }, 'Member № [0001] · Luna · [HUMAN]'), h('h1', {}, 'Welcome back,', h('br'), '[NAME].'), h('p', { class: 'sub' }, 'Your dog is on the list.')),
       h('div', { class: 'tiles' },
-        tile('#/book/hotel', 'hotel-stay', 'Book a stay'),
-        tile('#/book/day', 'day-club', 'Day Club'),
-        tile('#/dogs', 'dog', 'My dogs'),
-        tile('#/messages', 'messages', 'Messages')));
+        tile('#/book/hotel', 'hotel-stay', 'Stay', 'Book a stay', 'Overnight suites for the regulars.', true),
+        tile('#/book/day', 'day-club', 'Play', 'Day Club', 'A day club with a guest list.'),
+        tile('#/dogs', 'dog', 'Dogs', 'My dogs', n ? `${n} on the list.` : 'Add your first dog.'),
+        tile('#/messages', 'messages', 'Desk', 'Messages', 'Talk to Leon.')));
   }
 
   // ---------- My Dogs ----------
   function dogs() {
-    const list = S.dogs.map((d) => h('button', { class: 'dog card', onclick: () => (location.hash = `#/dog/${d.id}`), 'aria-label': `${dogName(d)}, open profile` },
+    const pad = (i) => String(i + 1).padStart(2, '0');
+    const list = S.dogs.map((d, i) => h('button', { class: 'dog card', onclick: () => (location.hash = `#/dog/${d.id}`), 'aria-label': `${dogName(d)}, open profile` },
       h('div', { class: 'shot' }, d.photo ? h('img', { class: 'photo', src: d.photo, alt: `${dogName(d)}` }) : (d.ph || `[Photo: tight on ${dogName(d)}'s face]`)),
       h('div', { class: 'dog-body' },
+        h('span', { class: 'label label--cognac' }, `Guest № ${pad(i)}`),
         h('div', { class: 'dog-name' }, dogName(d)),
         h('div', { class: 'dog-breed' }, d.breed || '[Breed]'),
-        h('div', { class: 'dog-meta label label--cognac' }, `${d.age || '[AGE]'} · ${d.weight || '[WEIGHT]'}`)),
+        h('div', { class: 'dog-meta label' }, `${d.age || '[AGE]'} · ${d.weight || '[WEIGHT]'}`)),
       icon('arrow-right')));
     return h('div', { class: 'screen' },
       h('div', { class: 'bar' }, back(), h('button', { class: 'iconbtn iconbtn--fill', 'aria-label': 'Add a dog', onclick: addDog }, icon('add'))),
-      h('h1', { class: 'title' }, 'My dogs'),
+      h('div', {}, h('span', { class: 'label label--cognac eyebrow' }, 'Leon’s · The list'), h('h1', { class: 'title' }, 'My dogs'),
+        h('p', { class: 'sub lede' }, `${S.dogs.length} on the list.`)),
       h('div', { class: 'dogs' }, list));
   }
   function addDog() {
@@ -132,7 +136,11 @@
     const note = h('p', { class: 'note', role: 'status' }, ready ? '' : (hotel ? 'Choose dates and a dog to continue.' : 'Choose a date and a dog to continue.'));
     return h('div', { class: 'screen' },
       h('div', { class: 'bar' }, back()),
-      h('h1', { class: 'title' }, 'Book a stay'),
+      h('div', {}, h('span', { class: 'label label--cognac eyebrow' }, 'Leon’s · Request'), h('h1', { class: 'title' }, 'Book a stay')),
+      h('div', { class: 'ticket on-ink', 'aria-live': 'polite' },
+        h('span', { class: 'label' }, hotel ? 'Hotel stay' : 'Day Club'),
+        h('div', { class: 'ticket-main' }, datesText),
+        h('p', {}, chosen.length ? chosen.map(dogName).join(' · ') : '[Dog names]')),
       h('div', { class: 'seg', role: 'group', 'aria-label': 'Service' },
         h('button', { 'aria-pressed': String(hotel), onclick: () => { d.type = 'hotel'; save(); render(); } }, 'Hotel stay'),
         h('button', { 'aria-pressed': String(!hotel), onclick: () => { d.type = 'day'; save(); render(); } }, 'Day Club')),
