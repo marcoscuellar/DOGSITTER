@@ -41,14 +41,14 @@ button{font:inherit;color:inherit}
 .home-top{display:flex;justify-content:space-between;align-items:center;background:var(--leons-ink);color:var(--leons-bone);padding:var(--leons-space-3) var(--leons-space-4)}
 .home-brand{display:flex;align-items:center;gap:var(--leons-space-3);font-family:var(--leons-font-display);font-size:30px;line-height:1;letter-spacing:.01em}
 .home-top img{height:28px;width:auto}.home-top .label{color:var(--leons-tan)}
-.pass-photo{height:clamp(340px,56vh,500px);background:var(--photo);overflow:hidden}
+.pass-photo{height:clamp(220px,34vh,320px);background:var(--photo);overflow:hidden}
 .pass-photo .photo{object-position:center 6%}
 .hatch{height:12px}
-.welcome{padding:var(--leons-space-6) var(--leons-space-4) var(--leons-space-2)}
-.welcome h1{font-family:var(--leons-font-display);font-weight:400;font-size:clamp(48px,14vw,64px);line-height:.95;text-transform:uppercase;letter-spacing:.01em}
-.welcome p{font-size:20px;margin-top:var(--leons-space-2)}
-.tiles{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:var(--leons-space-4) var(--leons-space-4) var(--leons-space-6)}
-.tile{display:flex;flex-direction:column;justify-content:space-between;gap:var(--leons-space-6);min-height:172px;padding:var(--leons-space-4);background:var(--card);border:var(--leons-border);color:var(--leons-ink);text-decoration:none}
+.welcome{padding:var(--leons-space-4) var(--leons-space-4) var(--leons-space-1)}
+.welcome h1{font-family:var(--leons-font-display);font-weight:400;font-size:clamp(40px,11.5vw,56px);line-height:.95;text-transform:uppercase;letter-spacing:.01em}
+.welcome p{font-size:18px;margin-top:var(--leons-space-2)}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:var(--leons-space-3) var(--leons-space-4) var(--leons-space-6)}
+.tile{display:flex;flex-direction:column;justify-content:space-between;gap:var(--leons-space-5);min-height:150px;padding:var(--leons-space-4);background:var(--card);border:var(--leons-border);color:var(--leons-ink);text-decoration:none}
 .tile:hover{background:var(--leons-bone)}
 .tile-top{display:flex;justify-content:space-between;align-items:flex-start}
 .tile .label{color:var(--leons-cognac)}.tile .ic{width:28px;height:28px}
