@@ -1,220 +1,228 @@
-/* LEON'S · pet owner app (Home, My Dogs, Book a Stay).
-   Prototype: data stays in this browser. No prices, times or phone numbers are invented;
-   unknown values show as [BRACKETS]. */
+/* LEON'S · pet owner app. Prototype: data stays in this browser.
+   No prices, times or phone numbers are invented; unknown values show as [BRACKETS]. */
 (() => {
-  const KEY = 'leons-owner-v2';
-    const SVG = 'http://www.w3.org/2000/svg';
+  const KEY = 'leons-owner-v3';
+  const SVGNS = 'http://www.w3.org/2000/svg';
   const $ = (s) => document.querySelector(s);
-
-  // Safe DOM builder: text is always a text node.
   const h = (tag, attrs = {}, ...kids) => {
     const e = document.createElement(tag);
     for (const [k, v] of Object.entries(attrs)) {
       if (v == null || v === false) continue;
       if (k === 'class') e.className = v;
+      else if (k === 'style') e.setAttribute('style', v);
       else if (k.startsWith('on')) e.addEventListener(k.slice(2), v);
       else e.setAttribute(k, v === true ? '' : v);
     }
     for (const c of kids.flat()) if (c != null && c !== false) e.append(c.nodeType ? c : document.createTextNode(c));
     return e;
   };
-  const icon = (name, cls = '') => {
-    const s = document.createElementNS(SVG, 'svg');
-    s.setAttribute('class', 'ic ' + cls); s.setAttribute('aria-hidden', 'true');
-    const u = document.createElementNS(SVG, 'use'); u.setAttribute('href', `#leons-${name}`);
-    s.append(u); return s;
-  };
+  const ic = (name, cls = '') => { const s = document.createElementNS(SVGNS, 'svg'); s.setAttribute('class', 'ic ' + cls); s.setAttribute('aria-hidden', 'true'); const u = document.createElementNS(SVGNS, 'use'); u.setAttribute('href', '#' + name); s.append(u); return s; };
   const uid = () => Math.random().toString(36).slice(2, 9);
   const day = (v) => (v ? new Date(v + 'T00:00').toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' }) : '');
+  const hhmm = (iso) => new Date(iso).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
 
   // ---------- state ----------
   const seed = () => ({
-    // Luna's photo is the kit's sample. The two bracketed dogs only show the multi-dog layout.
     dogs: [
-      { id: 'd1', name: 'Luna', photo: 'photos/dog-golden-sitting.webp' },
-      { id: 'd2', name: '[DOG 2]', photo: 'photos/dog-small-ears-up.webp', sample: true },
-      { id: 'd3', name: '[DOG 3]', photo: 'photos/dog-beagle-ball.webp', sample: true },
+      { id: 'luna', name: 'Luna', breed: 'Golden retriever', age: '', blurb: 'loves a sofa', photo: 'photos/luna-guest.webp', pos: '76% 25%', status: '● Day Club · [TOMORROW]', notes: {} },
+      { id: 'd2', name: '[DOG 2]', breed: '', age: '', photo: 'photos/dog-small-ears-up.webp', pos: '50% 22%', status: 'Next · [DATE]', notes: {}, sample: true },
+      { id: 'd3', name: '[DOG 3]', breed: '', age: '', photo: 'photos/dog-beagle-ball.webp', pos: '60% 30%', status: 'No visit booked', notes: {}, sample: true },
     ],
-    bookings: [],
-    draft: { type: 'hotel', checkin: '', checkout: '', dogIds: [], services: '' },
+    requests: [],
+    draft: { type: 'day', dogId: 'luna', checkin: '', checkout: '', drop: '', pick: '', addons: '' },
+    msgs: [{ from: 'staff', text: 'Luna had a great day.', at: new Date().toISOString() }],
+    careNotes: [],
   });
   let S;
   try { S = JSON.parse(localStorage.getItem(KEY)) || seed(); } catch { S = seed(); }
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch { /* storage unavailable */ } };
-  const dogName = (d) => d.name;
+  const dogById = (id) => S.dogs.find((d) => d.id === id) || S.dogs[0];
+  let profileTab = 'Details';
 
-  // ---------- bottom sheet ----------
+  // ---------- sheet ----------
   const sheet = $('#sheet');
-  function openSheet(title, body, onSave, saveLabel = 'Save') {
+  function openSheet(title, body, onSave, label = 'Save') {
     $('#sheet-title').textContent = title;
     $('#sheet-body').replaceChildren(...[body].flat());
-    $('#sheet-save').textContent = saveLabel;
-    $('#sheet-form').onsubmit = (e) => {
-      e.preventDefault();
-      const err = onSave(new FormData(e.target));
-      if (err) { showErr(err); return; }
-      sheet.close(); render();
-    };
+    $('#sheet-save').textContent = label;
+    $('#sheet-form').onsubmit = (e) => { e.preventDefault(); const err = onSave(new FormData(e.target)); if (err) { $('#sheet-body').querySelector('.err')?.remove(); $('#sheet-body').prepend(h('p', { class: 'err', role: 'alert' }, err)); return; } sheet.close(); render(); };
     $('#sheet-cancel').onclick = () => sheet.close();
     sheet.showModal();
-    const first = sheet.querySelector('input,textarea'); if (first) first.focus();
+    sheet.querySelector('input,textarea')?.focus();
   }
-  function showErr(msg) {
-    sheet.querySelector('.err')?.remove();
-    $('#sheet-body').prepend(h('p', { class: 'err', role: 'alert' }, msg));
-  }
-  const field = (label, input) => h('label', { class: 'field' }, h('span', { class: 'label' }, label), input);
+  const field = (label, input) => h('label', { class: 'field' }, label, input);
 
-  // ---------- shared pieces ----------
-  const back = (href = '#/home') => h('a', { class: 'iconbtn', href, 'aria-label': 'Back' }, icon('back'));
-  const comingNext = (title, line) => h('div', { class: 'screen' }, h('div', { class: 'bar' }, back()),
-    h('h1', { class: 'title' }, title),
-    h('div', { class: 'card empty' }, h('span', { class: 'label label--cognac' }, 'Next build'), h('p', { class: 'sub' }, line)));
+  // ---------- pieces ----------
+  const hero = ({ img, pos, hh, title, sub, back, action, tag, size }) => h('div', { class: 'hero', style: `--hh:${hh || 400}px;--pos:${pos || '76% 25%'}` },
+    h('img', { src: img, alt: '' }),
+    back && h('a', { class: 'circle', href: back, 'aria-label': 'Back' }, ic('aback')),
+    tag && h('span', { class: 'circle pill tag' }, tag),
+    action,
+    h('div', { class: 'hero-text' }, h('h1', { class: 'hero-title', style: size ? `font-size:${size}` : null }, title), sub && h('p', { class: 'hero-sub' }, sub)));
+  const stats = (rows) => h('div', { class: 'stats' }, rows.map(([v, l]) => h('div', { class: 'stat' }, h('b', {}, v), h('span', {}, l))));
+  const pillBtn = (label, icon, onclick) => h('button', { class: 'pill', onclick, type: 'button' }, icon && ic(icon), label);
+  const theme = (cls, ...kids) => { $('#screen').className = cls; return h('div', {}, kids); };
+
+  function soon(title, line, back = '#/home') {
+    return [h('div', { class: 'body', style: 'padding-top:28px' }, h('a', { href: back, class: 'chip', style: 'display:inline-block;text-decoration:none' }, '← Back'), h('h1', { class: 'hero-title', style: 'margin-top:20px;font-size:56px' }, title), h('p', { class: 'hero-sub', style: 'margin-top:8px' }, line))];
+  }
 
   // ---------- Home ----------
   function home() {
-    const tile = (href, ic, tag, name, sub, primary) => h('a', { class: 'tile' + (primary ? ' tile--primary' : ''), href },
-      h('span', { class: 'tile-top' }, h('span', { class: 'label' }, tag), icon(ic)),
-      h('span', {}, h('span', { class: 'tile-name' }, name), h('span', { class: 'tile-sub' }, sub)));
-    const n = S.dogs.filter((d) => !d.sample).length;
-    return h('div', {},
-      h('section', { class: 'on-ink', 'aria-label': 'Membership' },
-        h('div', { class: 'home-top' }, h('span', { class: 'home-brand' }, h('img', { src: 'logos/leons-head-mark-bone.svg', alt: '' }), 'LEON’S'), h('span', { class: 'label' }, 'Uptown · Chicago')),
-        h('div', { class: 'pass-photo' }, h('img', { class: 'photo', src: 'photos/dog-golden-sitting.webp', alt: 'A golden retriever sitting in the park, tongue out' })),
-        h('div', { class: 'leons-pattern-hatch hatch', 'aria-hidden': 'true' })),
-      h('div', { class: 'welcome' }, h('span', { class: 'label label--cognac eyebrow' }, 'Member № [0001] · Luna · [HUMAN]'), h('h1', {}, 'Welcome back,', h('br'), '[NAME].'), h('p', { class: 'sub' }, 'Your dog is on the list.')),
-      h('div', { class: 'tiles' },
-        tile('#/book/hotel', 'hotel-stay', 'Stay', 'Book a stay', 'Overnight suites for the regulars.', true),
-        tile('#/book/day', 'day-club', 'Play', 'Day Club', 'A day club with a guest list.'),
-        tile('#/dogs', 'dog', 'Dogs', 'My dogs', n ? `${n} on the list.` : 'Add your first dog.'),
-        tile('#/messages', 'messages', 'Desk', 'Messages', 'Talk to Leon.')));
+    const nextReq = S.requests[0];
+    const real = S.dogs.filter((d) => !d.sample).length;
+    const tile = (href, cls, icon, name, sub) => h('a', { class: 'tile ' + cls, href }, ic(icon), h('span', {}, h('b', {}, name), h('i', {}, sub)));
+    return [
+      hero({ img: 'photos/dog-golden-sitting.webp', pos: '50% 12%', hh: 440, size: 'clamp(40px,12.5vw,54px)', title: ['Welcome back,', h('br'), '[NAME].'], sub: 'Your dog is on the list.' }),
+      stats([[String(S.dogs.length), 'Dogs'], [nextReq ? new Date((nextReq.checkin || '') + 'T00:00').toLocaleDateString(undefined, { weekday: 'short' }).toUpperCase() : '[DAY]', 'Next visit'], ['[#]', 'Unread']]),
+      h('div', { class: 'body' },
+        h('div', { class: 'tiles' },
+          tile('#/book', 'forest', 'acal', 'Book a visit', 'We’ll hold a spot.'),
+          tile('#/today', 'navy', 'asun', 'Today at the club', 'See how the day is going.'),
+          tile('#/dogs', '', 'adog', 'My dogs', `${real || S.dogs.length} on the list.`),
+          tile('#/messages', '', 'amsg', 'Messages', 'Straight from Leon’s team.')),
+        S.requests.length ? [h('div', { class: 'sec-head', style: 'margin-top:22px' }, h('h2', {}, 'Your requests')), h('div', { class: 'rows', style: 'margin-top:0' }, S.requests.map((r) => h('div', { class: 'row plain' }, ic(r.type === 'day' ? 'asun' : 'abed'), h('span', { class: 'grow' }, h('b', {}, `${r.type === 'day' ? 'Day Club' : 'Hotel Stay'} · ${r.dog}`), h('i', {}, `${day(r.checkin)}${r.checkout ? ' – ' + day(r.checkout) : ''} · requested`)))))] : null),
+    ];
   }
 
   // ---------- My Dogs ----------
   function dogs() {
-    const pad = (i) => String(i + 1).padStart(2, '0');
-    const list = S.dogs.map((d, i) => h('button', { class: 'dog card', onclick: () => (location.hash = `#/dog/${d.id}`), 'aria-label': `${dogName(d)}, open profile` },
-      h('div', { class: 'shot' }, d.photo ? h('img', { class: 'photo', src: d.photo, alt: `${dogName(d)}` }) : (d.ph || `[Photo: tight on ${dogName(d)}'s face]`)),
-      h('div', { class: 'dog-body' },
-        h('span', { class: 'label label--cognac' }, `Guest № ${pad(i)}`),
-        h('div', { class: 'dog-name' }, dogName(d)),
-        h('div', { class: 'dog-breed' }, d.breed || '[Breed]'),
-        h('div', { class: 'dog-meta label' }, `${d.age || '[AGE]'} · ${d.weight || '[WEIGHT]'}`)),
-      icon('arrow-right')));
-    return h('div', { class: 'screen' },
-      h('div', { class: 'bar' }, back(), h('button', { class: 'iconbtn iconbtn--fill', 'aria-label': 'Add a dog', onclick: addDog }, icon('add'))),
-      h('div', {}, h('span', { class: 'label label--cognac eyebrow' }, 'Leon’s · The list'), h('h1', { class: 'title' }, 'My dogs'),
-        h('p', { class: 'sub lede' }, `${S.dogs.length} on the list.`)),
-      h('div', { class: 'dogs' }, list));
+    return [
+      hero({ img: 'photos/luna-guest.webp', hh: 400, title: 'My dogs', sub: `${S.dogs.length} on the list. All good dogs.`, back: '#/home', action: pillBtn('Add a dog', 'aplus', addDog) }),
+      stats([['[#]', 'Visits this month'], ['[#]', 'Nights stayed'], ['[DAY]', 'Next visit']]),
+      h('div', { class: 'body' },
+        h('div', { class: 'sec-head' }, h('h2', {}, 'The pack'), h('span', {}, 'Swipe for everyone →')),
+        h('div', { class: 'pack' }, S.dogs.map((d) => h('a', { class: 'dogcard', href: `#/dog/${d.id}`, style: `--pos:${d.pos || '50% 25%'}` },
+          h('img', { src: d.photo || 'photos/luna-guest.webp', alt: d.name }),
+          h('span', { class: 'meta' }, h('b', {}, d.name), h('i', {}, `${d.breed || '[Breed]'} · ${d.age || '[age]'}`), h('small', {}, d.status || 'No visit booked')))))),
+    ];
   }
   function addDog() {
     openSheet('Add a dog', [
       field('Name', h('input', { name: 'name', required: true, autocomplete: 'off' })),
       field('Breed (optional)', h('input', { name: 'breed', autocomplete: 'off' })),
       field('Age (optional)', h('input', { name: 'age', autocomplete: 'off' })),
-      field('Weight (optional)', h('input', { name: 'weight', autocomplete: 'off' })),
+      field('Photo (optional)', h('input', { name: 'photo', type: 'file', accept: 'image/*' })),
     ], (f) => {
-      const name = String(f.get('name')).trim();
-      if (!name) return 'Add a name to continue.';
-      S.dogs = S.dogs.filter((d) => !d.sample); // layout samples go away once a real dog is added
-      S.dogs.push({ id: uid(), name, breed: String(f.get('breed')).trim(), age: String(f.get('age')).trim(), weight: String(f.get('weight')).trim() });
+      const name = String(f.get('name')).trim(); if (!name) return 'Add a name to continue.';
+      const d = { id: uid(), name, breed: String(f.get('breed')).trim(), age: String(f.get('age')).trim(), photo: null, pos: '50% 30%', status: 'No visit booked', notes: {} };
+      S.dogs = S.dogs.filter((x) => !x.sample); S.dogs.push(d);
+      const file = f.get('photo');
+      if (file && file.size) {
+        const r = new FileReader();
+        r.onload = () => { const i = new Image(); i.onload = () => { const k = Math.min(1, 800 / Math.max(i.width, i.height)); const c = document.createElement('canvas'); c.width = i.width * k; c.height = i.height * k; c.getContext('2d').drawImage(i, 0, 0, c.width, c.height); d.photo = c.toDataURL('image/jpeg', 0.8); save(); render(); }; i.src = r.result; };
+        r.readAsDataURL(file);
+      }
       save();
     }, 'Add dog');
   }
 
-  // ---------- Book a Stay ----------
-  function book(type) {
-    const d = S.draft;
-    if (type && (type === 'hotel' || type === 'day') && d.type !== type) { d.type = type; save(); }
-    const hotel = d.type === 'hotel';
-    const chosen = S.dogs.filter((x) => d.dogIds.includes(x.id) && !x.sample);
-    const datesText = hotel
-      ? (d.checkin || d.checkout ? `${day(d.checkin) || '[Check-in]'} – ${day(d.checkout) || '[Check-out]'}` : '[Check-in] – [Check-out]')
-      : (d.checkin ? day(d.checkin) : '[Date]');
-    const row = (ic, title, sub, onclick, extra) => h('button', { class: 'row', type: 'button', onclick, disabled: !onclick }, icon(ic), h('div', { class: 'row-text' }, h('div', { class: 'row-title' }, title), h('div', { class: 'row-sub' }, sub)), extra || (onclick ? icon('arrow-right', 'arrow') : null));
-    const ready = d.checkin && (!hotel || d.checkout) && chosen.length;
-    const note = h('p', { class: 'note', role: 'status' }, ready ? '' : (hotel ? 'Choose dates and a dog to continue.' : 'Choose a date and a dog to continue.'));
-    return h('div', { class: 'screen' },
-      h('div', { class: 'bar' }, back()),
-      h('div', {}, h('span', { class: 'label label--cognac eyebrow' }, 'Leon’s · Request'), h('h1', { class: 'title' }, 'Book a stay')),
-      h('div', { class: 'ticket on-ink', 'aria-live': 'polite' },
-        h('span', { class: 'label' }, hotel ? 'Hotel stay' : 'Day Club'),
-        h('div', { class: 'ticket-main' }, datesText),
-        h('p', {}, chosen.length ? chosen.map(dogName).join(' · ') : '[Dog names]')),
-      h('div', { class: 'seg', role: 'group', 'aria-label': 'Service' },
-        h('button', { 'aria-pressed': String(hotel), onclick: () => { d.type = 'hotel'; save(); render(); } }, 'Hotel stay'),
-        h('button', { 'aria-pressed': String(!hotel), onclick: () => { d.type = 'day'; save(); render(); } }, 'Day Club')),
-      h('div', { class: 'card rows' },
-        row('bookings', hotel ? 'Dates' : 'Date', datesText, () => pickDates(hotel)),
-        hotel && row('hotel-stay', 'Room / Suite', '[Suite name]', null, h('div', { class: 'shot' }, '[Photo: the suite]')),
-        row('dog', 'Which dogs', chosen.length ? chosen.map(dogName).join(', ') : '[Dog names]', pickDogs),
-        row('add', 'Add services', d.services ? d.services : '[Bath, grooming, enrichment]', pickServices)),
-      h('div', { class: 'spacer' }),
-      note,
-      h('button', { class: 'btn leons-btn leons-btn--primary', disabled: !ready, onclick: submitBooking }, 'Continue'));
+  // ---------- Dog profile ----------
+  const DETAILS = [['likes', 'aheart', 'Likes', '[Fetch, belly rubs, playtime]', '#F4EEE2', '#163D28'], ['care', 'apill', 'Care Needs', '[Medications or none]', '#0D1C31', '#F4EEE2'], ['feeding', 'abowl', 'Feeding', '[Amount, times a day]', '#F4EEE2', '#163D28'], ['notes', 'anote', 'Notes', '[Good with other dogs?]', '#163D28', '#F4EEE2']];
+  function profile(id) {
+    const d = dogById(id);
+    let body;
+    if (profileTab === 'Details') {
+      body = h('div', { style: 'margin-top:6px' }, DETAILS.map(([k, icon, title, ph, bg, fg]) => h('button', { class: 'row', style: 'border-radius:0;padding:12px 0', onclick: () => openSheet(title, field(title, h('textarea', { name: 'v' }, d.notes[k] || '')), (f) => { d.notes[k] = String(f.get('v')).trim(); save(); }) },
+        h('span', { class: 'badge', style: `background:${bg};color:${fg}` }, ic(icon)), h('span', { class: 'grow' }, h('b', {}, title), h('i', {}, d.notes[k] || ph)), ic('achev', 'chev'))));
+    } else if (profileTab === 'Care Notes') {
+      const mine = S.careNotes.filter((n) => n.dog === d.id);
+      body = h('div', { style: 'margin-top:12px' }, h('button', { class: 'cta', style: 'margin-top:0;height:50px;font-size:17px', onclick: () => openSheet('Care note', [field('Date', h('input', { type: 'date', name: 'date', required: true, value: new Date().toISOString().slice(0, 10) })), field('Instruction', h('textarea', { name: 'text', required: true }))], (f) => { S.careNotes.unshift({ id: uid(), dog: d.id, date: f.get('date'), text: String(f.get('text')).trim() }); save(); }, 'Add') }, 'Add a care note'),
+        mine.length ? h('div', { class: 'rows' }, mine.map((n) => h('div', { class: 'row plain' }, ic('anote'), h('span', { class: 'grow' }, h('b', {}, day(n.date)), h('i', {}, n.text))))) : h('div', { class: 'empty' }, h('b', {}, 'No care notes yet'), h('i', {}, 'Add instructions for Leon’s team.')));
+    } else {
+      body = h('div', { class: 'empty' }, h('b', {}, 'Nothing here yet'), h('i', {}, 'Visits show up here after the first one.'));
+    }
+    return [
+      hero({ img: d.photo || 'photos/luna-guest.webp', pos: d.pos, hh: 380, title: d.name, sub: `${d.breed || '[Breed]'} · ${d.age || '[age]'}${d.blurb ? ' · ' + d.blurb : ''}`, back: '#/dogs', action: pillBtn('Edit', null, () => openSheet(`Edit ${d.name}`, [field('Name', h('input', { name: 'name', value: d.name, required: true })), field('Breed', h('input', { name: 'breed', value: d.breed || '' })), field('Age', h('input', { name: 'age', value: d.age || '' }))], (f) => { const n = String(f.get('name')).trim(); if (!n) return 'Add a name.'; d.name = n; d.breed = String(f.get('breed')).trim(); d.age = String(f.get('age')).trim(); d.sample = false; save(); })) }),
+      stats([['[#]', 'Visits'], ['[#]', 'Nights'], ['[#]', 'Best friends']]),
+      h('div', { class: 'body' }, h('div', { class: 'chips', role: 'group', 'aria-label': 'Profile section' }, ['Details', 'Care Notes', 'History'].map((t) => h('button', { class: 'chip', 'aria-pressed': String(t === profileTab), onclick: () => { profileTab = t; render(); } }, t))), body),
+    ];
   }
-  function pickDates(hotel) {
-    const d = S.draft;
-    openSheet(hotel ? 'Dates' : 'Date', [
-      field(hotel ? 'Check-in' : 'Date', h('input', { type: 'date', name: 'in', value: d.checkin, required: true })),
-      hotel && field('Check-out', h('input', { type: 'date', name: 'out', value: d.checkout, required: true })),
-    ], (f) => {
-      const a = f.get('in'), b = hotel ? f.get('out') : '';
-      if (!a) return 'Choose a date.';
-      if (hotel && (!b || b <= a)) return 'Check-out needs to be after check-in.';
-      d.checkin = a; d.checkout = b; save();
-    });
-  }
-  function pickDogs() {
-    const d = S.draft; const real = S.dogs.filter((x) => !x.sample);
-    openSheet('Which dogs', real.length ? real.map((x) => h('label', { class: 'check' }, h('input', { type: 'checkbox', name: 'dog', value: x.id, checked: d.dogIds.includes(x.id) }), dogName(x))) : h('p', { class: 'sub' }, 'Add a dog first, from My dogs.'),
-      (f) => { d.dogIds = f.getAll('dog'); save(); });
-  }
-  function pickServices() {
-    const d = S.draft;
-    openSheet('Add services', field('Anything you’d like to add', h('textarea', { name: 'services' }, d.services)), (f) => { d.services = String(f.get('services')).trim(); save(); });
-  }
-  function submitBooking() {
-    const d = S.draft;
-    const b = { id: uid(), type: d.type, checkin: d.checkin, checkout: d.checkout, dogs: S.dogs.filter((x) => d.dogIds.includes(x.id) && !x.sample).map(dogName), services: d.services, status: 'requested', at: new Date().toISOString() };
-    S.bookings.unshift(b);
-    S.draft = { type: d.type, checkin: '', checkout: '', dogIds: [], services: '' };
-    save(); location.hash = `#/booked/${b.id}`;
-  }
-  const summary = (b) => [b.type === 'hotel' ? 'Hotel stay' : 'Day Club', b.type === 'hotel' ? `${day(b.checkin)} – ${day(b.checkout)}` : day(b.checkin), b.dogs.join(', ')];
 
-  function booked(id) {
-    const b = S.bookings.find((x) => x.id === id);
-    if (!b) return bookings();
-    return h('div', { class: 'screen' },
-      h('div', { class: 'done on-ink' }, h('span', { class: 'label' }, 'Booking'), h('h1', {}, 'Request received'), h('p', {}, 'We’ll confirm within [TIME].'),
-        h('div', { class: 'facts' }, summary(b).map((t) => h('span', { class: 'label' }, t)))),
-      h('div', { class: 'spacer' }),
-      h('a', { class: 'btn leons-btn leons-btn--primary', href: '#/bookings' }, 'View bookings'),
-      h('a', { class: 'btn leons-btn leons-btn--secondary', href: '#/home' }, 'Back home'));
+  // ---------- Book a visit ----------
+  function book(type) {
+    const q = S.draft; if (type === 'day' || type === 'hotel') q.type = type;
+    const day_ = q.type === 'day'; const d = dogById(q.dogId);
+    const row = (icon, title, note, onclick) => h('button', { class: 'row', type: 'button', onclick }, ic(icon), h('span', { class: 'grow' }, h('b', {}, title), h('i', {}, note)), ic('achev', 'chev'));
+    const dates = day_ ? (q.checkin ? day(q.checkin) : '[Choose dates]') : (q.checkin || q.checkout ? `${day(q.checkin) || '[Check-in]'} – ${day(q.checkout) || '[Check-out]'}` : '[Choose dates]');
+    const ready = q.checkin && (day_ || q.checkout);
+    return [
+      hero({ img: 'photos/golden-walk.jpg', pos: '58% 30%', hh: 360, title: 'Book a visit', sub: `We’ll hold a spot for ${d.name}.`, back: '#/home' }),
+      stats([['[#]', 'Spots open'], ['[#]', 'Suites free'], ['[#]', 'Visits left']]),
+      h('div', { class: 'body' },
+        h('div', { class: 'toggle', role: 'group', 'aria-label': 'Service' },
+          h('button', { 'aria-pressed': String(day_), onclick: () => { q.type = 'day'; save(); render(); } }, ic('asun'), 'Day Club'),
+          h('button', { 'aria-pressed': String(!day_), onclick: () => { q.type = 'hotel'; save(); render(); } }, ic('abed'), 'Hotel Stay')),
+        h('div', { class: 'rows' },
+          row('adog', 'Which dog', d.name, () => openSheet('Which dog', S.dogs.filter((x) => !x.sample).map((x) => h('label', { class: 'check' }, h('input', { type: 'radio', name: 'dog', value: x.id, checked: x.id === q.dogId }), x.name)), (f) => { if (f.get('dog')) q.dogId = f.get('dog'); save(); })),
+          row('acal', day_ ? 'Select Date' : 'Select Dates', dates, () => openSheet(day_ ? 'Select date' : 'Select dates', [field(day_ ? 'Date' : 'Check-in', h('input', { type: 'date', name: 'a', value: q.checkin, required: true })), !day_ && field('Check-out', h('input', { type: 'date', name: 'b', value: q.checkout, required: true }))], (f) => { const a = f.get('a'), b = day_ ? '' : f.get('b'); if (!day_ && (!b || b <= a)) return 'Check-out needs to be after check-in.'; q.checkin = a; q.checkout = b; save(); })),
+          row('aclock', 'Drop-off & Pick-up', q.drop || q.pick ? `${q.drop || '[Drop-off]'} · ${q.pick || '[Pick-up]'}` : '[Morning] · [Evening] windows', () => openSheet('Drop-off & pick-up', [field('Preferred drop-off', h('input', { name: 'drop', value: q.drop })), field('Preferred pick-up', h('input', { name: 'pick', value: q.pick }))], (f) => { q.drop = String(f.get('drop')).trim(); q.pick = String(f.get('pick')).trim(); save(); })),
+          row('aspark', 'Add-Ons', q.addons || '[Bath, grooming, enrichment]', () => openSheet('Add-ons', field('Anything to add', h('textarea', { name: 'v' }, q.addons)), (f) => { q.addons = String(f.get('v')).trim(); save(); }))),
+        h('button', { class: 'cta', disabled: !ready, onclick: submit }, 'Send request →'),
+        h('p', { class: 'note', role: 'status' }, ready ? '' : (day_ ? 'Choose a date to continue.' : 'Choose your dates to continue.'))),
+    ];
   }
-  function bookings() {
-    return h('div', { class: 'screen' }, h('h1', { class: 'title' }, 'Bookings'),
-      S.bookings.length ? h('div', { class: 'dogs' }, S.bookings.map((b) => h('div', { class: 'card booking' },
-        h('span', { class: 'label label--cognac' }, `${b.status} · ${summary(b)[0]}`), h('h3', {}, summary(b)[1]), h('p', { class: 'sub' }, summary(b)[2] + (b.services ? ` · ${b.services}` : '')), h('p', { class: 'note' }, 'We’ll confirm within [TIME].'))))
-        : h('div', { class: 'card empty' }, h('h2', {}, 'Nothing booked yet'), h('p', { class: 'sub' }, 'Your dog is on the list — pick a date.'), h('a', { class: 'btn leons-btn leons-btn--primary', href: '#/book/hotel' }, 'Book a stay')));
+  function submit() {
+    const q = S.draft; const d = dogById(q.dogId);
+    const r = { id: uid(), type: q.type, dog: d.name, checkin: q.checkin, checkout: q.checkout, drop: q.drop, pick: q.pick, addons: q.addons, at: new Date().toISOString() };
+    S.requests.unshift(r); S.draft = { type: q.type, dogId: q.dogId, checkin: '', checkout: '', drop: '', pick: '', addons: '' }; save(); location.hash = `#/booked/${r.id}`;
+  }
+  function booked(id) {
+    const r = S.requests.find((x) => x.id === id); if (!r) return home();
+    return [hero({ img: 'photos/golden-walk.jpg', pos: '58% 30%', hh: 340, title: ['Request', h('br'), 'received'], sub: 'We’ll confirm within [TIME].', back: '#/home' }),
+      h('div', { class: 'body' }, h('div', { class: 'rows', style: 'margin-top:0' },
+        h('div', { class: 'row plain' }, ic(r.type === 'day' ? 'asun' : 'abed'), h('span', { class: 'grow' }, h('b', {}, r.type === 'day' ? 'Day Club' : 'Hotel Stay'), h('i', {}, r.dog))),
+        h('div', { class: 'row plain' }, ic('acal'), h('span', { class: 'grow' }, h('b', {}, 'Dates'), h('i', {}, `${day(r.checkin)}${r.checkout ? ' – ' + day(r.checkout) : ''}`)))),
+        h('a', { class: 'cta', href: '#/home' }, 'Back home'))];
+  }
+
+  // ---------- Messages ----------
+  function messages() {
+    const t = $('#screen'); void t;
+    const last = S.msgs[S.msgs.length - 1];
+    const row = (href, avatar, name, time, line, dot) => h('a', { class: 'thread', href }, avatar, h('span', { class: 'grow' }, h('span', { class: 'top' }, h('b', {}, name), h('span', {}, time)), h('span', { class: 'line' }, h('span', {}, line), dot && h('span', { class: 'dot' }))));
+    return [
+      hero({ img: 'photos/golden-walk.jpg', pos: '58% 30%', hh: 330, title: 'Messages', sub: 'Straight from Leon’s team.', action: pillBtn('New', 'aplus', () => (location.hash = '#/thread/team')) }),
+      stats([['[#]', 'Unread'], ['[#]', 'Photos today'], ['[#]', 'Care updates']]),
+      h('div', { class: 'threads' },
+        row('#/thread/team', h('span', { class: 'avatar' }, h('img', { src: 'icons/leons-head-mark-ink.svg', alt: '' })), 'Leon’s Team', '[time]', last.text, true),
+        row('#/thread/care', h('span', { class: 'avatar photo' }, h('img', { src: 'photos/luna-guest.webp', alt: '' })), 'Care Update', '[time]', 'Photos from today’s play.'),
+        row('#/thread/booking', h('span', { class: 'avatar navy' }, ic('abell')), 'Booking Confirmed', '[day]', 'Your Day Club visit is set.')),
+    ];
+  }
+  function thread(key) {
+    if (key !== 'team') return [h('div', { class: 'body' }, h('a', { href: '#/messages', class: 'chip', style: 'display:inline-block;text-decoration:none' }, '← Back'), h('h1', { class: 'hero-title', style: 'margin-top:18px;font-size:48px' }, key === 'care' ? 'Care update' : 'Booking confirmed'), h('div', { class: 'bubble', style: 'margin-top:16px' }, key === 'care' ? 'Photos from today’s play.' : 'Your Day Club visit is set.', h('small', {}, '[time]')))];
+    const ta = h('textarea', { 'aria-label': 'Message', placeholder: 'Write a message…' });
+    return [h('div', { class: 'body' }, h('a', { href: '#/messages', class: 'chip', style: 'display:inline-block;text-decoration:none' }, '← Back'), h('h1', { class: 'hero-title', style: 'margin-top:18px;font-size:48px' }, 'Leon’s team')),
+      h('div', { class: 'convo' }, S.msgs.map((m) => h('div', { class: 'bubble' + (m.from === 'me' ? ' me' : '') }, m.text, h('small', {}, `${m.from === 'me' ? 'You' : 'Leon’s team'} · ${hhmm(m.at)}`)))),
+      h('form', { class: 'compose', onsubmit: (e) => { e.preventDefault(); if (!ta.value.trim()) return; S.msgs.push({ from: 'me', text: ta.value.trim(), at: new Date().toISOString() }); save(); render(); } }, ta, h('button', { class: 'cta cream', style: 'margin-top:0' }, 'Send'))];
+  }
+
+  // ---------- Today at the club ----------
+  function today() {
+    const steps = [['acheck', 'Checked In', '[time]'], ['acheck', 'Play Time', '[time]'], ['aopen', 'Rest & Recharge', '[time]'], ['aopen', 'Afternoon Play', '[time]']];
+    return [
+      hero({ img: 'photos/luna-guest.webp', hh: 380, title: ['Luna’s', h('br'), 'Day Club'], sub: '[Drop-off] – [Pick-up] · having a big one.', tag: '● TODAY AT THE CLUB' }),
+      stats([['[#]', 'Meals'], ['[#]', 'Play sessions'], ['[#]', 'Photos']]),
+      h('div', { class: 'body' }, h('div', { class: 'card' }, steps.map(([i, t, tm]) => h('div', { class: 'step' }, ic(i), h('span', {}, t), h('small', {}, tm)))),
+        h('a', { class: 'cta cream', href: '#/photos' }, ic('acam'), 'View photos ([#])')),
+    ];
   }
 
   // ---------- router ----------
-  const TAB = { home: 'home', bookings: 'bookings', booked: 'bookings', book: 'home', dogs: 'dogs', dog: 'dogs', messages: 'messages', account: 'account' };
+  const SCREENS = {
+    home: ['t-cream', home, 'Home'], dogs: ['t-cream', dogs, 'Dogs'], dog: ['t-white', (a) => profile(a), 'Dogs'], book: ['t-cream', book, 'Book'], booked: ['t-cream', booked, 'Book'],
+    messages: ['t-forest', messages, 'Messages'], thread: ['t-forest', thread, 'Messages'], today: ['t-navy', today, 'Home'],
+    photos: ['t-cream', () => soon('Photos', 'Photos from the club arrive in the next build.'), 'Home'], account: ['t-white', () => soon('Account', 'Account and payments come in the next build.'), 'Account'],
+  };
+  const TABS = { Home: 'home', Book: 'book', Dogs: 'dogs', Messages: 'messages', Account: 'account' };
   function render() {
     const [r = 'home', arg] = location.hash.replace(/^#\/?/, '').split('/');
-    const view = {
-      home, dogs, bookings,
-      book: () => book(arg), booked: () => booked(arg),
-      dog: () => comingNext('Dog profile', 'Profile and care instructions come in the next build.'),
-      messages: () => comingNext('Messages', 'Two-way messages with Leon come in the next build.'),
-      account: () => comingNext('Account', 'Account and payments come in the next build.'),
-    }[r] || home;
-    $('#screen').replaceChildren(view());
-    document.querySelectorAll('.tabs a').forEach((a) => (a.dataset.tab === TAB[r] ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current')));
-    const t = { home: 'LEON’S', dogs: 'My dogs · LEON’S', book: 'Book a stay · LEON’S', bookings: 'Bookings · LEON’S', booked: 'Request received · LEON’S' }[r];
-    document.title = t || 'LEON’S';
+    const [cls, fn, tab] = SCREENS[r] || SCREENS.home;
+    $('#screen').className = cls;
+    $('#screen').replaceChildren(...[fn(arg)].flat().filter(Boolean));
+    document.querySelectorAll('.tabs a').forEach((a) => (a.dataset.tab === TABS[tab] ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current')));
+    document.title = ({ home: 'LEON’S', dogs: 'My dogs · LEON’S', dog: 'Dog · LEON’S', book: 'Book a visit · LEON’S', messages: 'Messages · LEON’S', today: 'Today · LEON’S' })[r] || 'LEON’S';
   }
   addEventListener('hashchange', () => { render(); scrollTo(0, 0); $('#screen').focus({ preventScroll: true }); });
   render();
