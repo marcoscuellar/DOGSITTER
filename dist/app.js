@@ -102,7 +102,7 @@
     action,
     h('div', { class: 'hero-text' }, h('h1', { class: 'hero-title', style: size ? `font-size:${size}` : null }, title), sub && h('p', { class: 'hero-sub' }, sub)),
     hint && h('span', { class: 'swipe', 'aria-hidden': 'true' }, ic('achev')));
-  const stats = (rows) => h('div', { class: 'stats' }, rows.map(([v, l]) => h('div', { class: 'stat' }, h('b', {}, v), h('span', {}, l))));
+  const stats = (rows) => h('div', { class: 'stats' }, rows.map(([v, l, href]) => h(href ? 'a' : 'div', { class: 'stat', href }, h('b', {}, v), h('span', {}, l))));
   const pillBtn = (label, icon, onclick) => h('button', { class: 'pill', onclick, type: 'button' }, icon && ic(icon), label);
   const theme = (cls, ...kids) => { $('#screen').className = cls; return h('div', {}, kids); };
 
@@ -119,7 +119,7 @@
       h('div', { class: 'home-logo' }, h('img', { src: 'logos/leons-logo-primary-dark.svg', alt: 'LEON’S Hotel & Day Club' })),
       h('div', { class: 'home-stick' }, hero({ img: 'photos/dog-golden-sitting.webp', pos: '50% 12%', hh: 'calc(100dvh - 86px - 84px)', hint: true, size: 'clamp(40px,12.5vw,54px)', title: ['Welcome back,', h('br'), `${(S.profile.name || '').split(' ')[0] || '[NAME]'}.`], sub: 'Your dog is on the list.' })),
       h('div', { class: 'home-sheet' },
-      h('div', { class: 'home-pin' }, stats([[String(S.dogs.length), 'Dogs'], [nextDay(), 'Next visit'], [String(S.unread || 0), 'Unread']])),
+      h('div', { class: 'home-pin' }, stats([[String(S.dogs.length), 'Dogs', '#/dogs'], [nextDay(), 'Next visit'], [String(S.unread || 0), 'Unread']])),
       h('div', { class: 'body' },
         h('div', { class: 'tiles' },
           tile('#/book', 'forest', 'acal', 'Book a visit', 'We’ll hold a spot.'),
@@ -387,7 +387,7 @@
 
   // ---------- router ----------
   const SCREENS = {
-    home: ['t-navy', home, 'Home'], dogs: ['t-cream', dogs, 'Dogs'], dog: ['t-white', (a) => profile(a), 'Dogs'], book: ['t-cream', book, 'Book'], booked: ['t-cream', booked, 'Book'],
+    home: ['t-white', home, 'Home'], dogs: ['t-cream', dogs, 'Dogs'], dog: ['t-white', (a) => profile(a), 'Dogs'], book: ['t-cream', book, 'Book'], booked: ['t-cream', booked, 'Book'],
     messages: ['t-forest', messages, 'Messages'], thread: ['t-forest', thread, 'Messages'], today: ['t-navy', today, 'Home'],
     photos: ['t-navy', photos, 'Home'],
     desk: ['t-cream', deskToday, 'dToday'], 'desk-requests': ['t-cream', deskRequests, 'dRequests'], 'desk-dog': ['t-cream', (a) => deskDog(a), 'dToday'], 'desk-thread': ['t-forest', (a) => thread(a || 'team'), 'dMessages'], account: ['t-cream', account, 'Account'],
