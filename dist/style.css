@@ -221,3 +221,18 @@ body[data-view=owner] .visit strong{font-family:var(--serif);font-size:20px;lett
 /* Section tabs: cognac underline, as in Overview / Care Notes / History */
 #sections button{font-weight:600;color:var(--slate)}
 #sections button[aria-pressed=true]{color:var(--forest)}
+
+/* ===== Fixes from browser check ===== */
+#title:focus{outline:none}
+.brand{font-size:21px}
+.pass-photo>img:not(.art){object-fit:cover;object-position:center 40%}
+.pass-photo{min-height:260px}
+.dog-pass .eyebrow,.visit-head .eyebrow,#list .label{color:#cfd9d2}
+#detail>.inside .visit-facts summary,.inside .visit-facts summary{color:var(--slate)}
+.visit-head .visit-facts summary{color:#e2e8f1}
+.inside form,.member-panel form,.thread form{display:grid;gap:10px;justify-items:start;margin-bottom:14px}
+.inside form textarea,.member-panel form textarea,.thread form textarea{margin:0}
+.member-panel .record button,.inside .record button{margin-top:4px}
+.stay-grid .arrival button{margin-top:10px;background:transparent;border-color:#ffffff66;color:#fff}
+.pass-photo{position:relative}
+.pass-photo>img:not(.art){position:absolute;inset:0;width:100%;height:100%;max-height:none;min-height:0;object-fit:cover}
