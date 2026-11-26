@@ -211,3 +211,19 @@ body.home .stats{margin-top:18px}
 body.home{background:var(--navy)}
 html:has(body.home){background:var(--navy)}
 body.home .app{box-shadow:none}
+
+/* Opening splash: navy + tone-on-tone pattern, stacked logo fades in, then dissolves into Home */
+#splash{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;
+  background:#0D1C31 url("logos/leons-pattern-splash-navy.svg") center top/120px 120px repeat;
+  animation:splash-out .8s ease 1.6s forwards}
+#splash img{display:block;width:min(210px,56vw);height:auto;opacity:0;animation:splash-in .4s ease forwards}
+#splash p{margin:0;font-family:var(--sans);font-weight:700;font-size:12px;letter-spacing:.26em;text-transform:uppercase;color:var(--cream);opacity:0;animation:splash-in .4s ease forwards;text-align:center;padding:0 24px}
+@keyframes splash-in{to{opacity:1}}
+@keyframes splash-out{to{opacity:0;visibility:hidden}}
+@media (prefers-reduced-motion:reduce){#splash{display:none}}
+
+/* Home: the photo stays locked at the top while stats and tiles slide up over it */
+.home-stick{position:sticky;top:0;z-index:0}
+.home-sheet{position:relative;z-index:2;background:var(--navy);border-radius:28px 28px 0 0;margin-top:-28px;padding-top:4px;min-height:60vh}
+.home-stick .hero-text{bottom:72px}
+.home-stick .swipe{bottom:40px}

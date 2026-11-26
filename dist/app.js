@@ -116,8 +116,10 @@
     const real = S.dogs.filter((d) => !d.sample).length;
     const tile = (href, cls, icon, name, sub) => h('a', { class: 'tile ' + cls, href }, ic(icon), h('span', {}, h('b', {}, name), h('i', {}, sub)));
     return [
+      h('div', { class: 'home-stick' },
       h('div', { class: 'home-logo' }, h('img', { src: 'logos/leons-logo-primary-dark.svg', alt: 'LEON’S Hotel & Day Club' })),
-      hero({ img: 'photos/dog-golden-sitting.webp', pos: '50% 12%', hh: 'calc(100dvh - 86px - 84px - 14px)', hint: true, cls: 'inset', size: 'clamp(40px,12.5vw,54px)', title: ['Welcome back,', h('br'), `${(S.profile.name || '').split(' ')[0] || '[NAME]'}.`], sub: 'Your dog is on the list.' }),
+      hero({ img: 'photos/dog-golden-sitting.webp', pos: '50% 12%', hh: 'calc(100dvh - 86px - 84px)', hint: true, size: 'clamp(40px,12.5vw,54px)', title: ['Welcome back,', h('br'), `${(S.profile.name || '').split(' ')[0] || '[NAME]'}.`], sub: 'Your dog is on the list.' })),
+      h('div', { class: 'home-sheet' },
       stats([[String(S.dogs.length), 'Dogs'], [nextDay(), 'Next visit'], [String(S.unread || 0), 'Unread']]),
       h('div', { class: 'body' },
         h('div', { class: 'tiles' },
@@ -126,7 +128,7 @@
           tile('#/dogs', '', 'adog', 'My dogs', `${real || S.dogs.length} on the list.`),
           tile('#/messages', '', 'amsg', 'Messages', 'Straight from Leon’s team.')),
         S.requests.length ? [h('div', { class: 'sec-head', style: 'margin-top:22px' }, h('h2', {}, 'Your requests')), h('div', { class: 'rows', style: 'margin-top:0' }, S.requests.map((r) => h('div', { class: 'row plain' }, ic(r.type === 'day' ? 'asun' : 'abed'), h('span', { class: 'grow' }, h('b', {}, `${r.type === 'day' ? 'Day Club' : 'Hotel Stay'} · ${r.dog}`), h('i', {}, `${day(r.checkin)}${r.checkout ? ' – ' + day(r.checkout) : ''} · ${r.status === 'approved' ? 'confirmed' : r.status === 'declined' ? 'declined' : 'requested'}`)))))] : null,
-        h('p', { class: 'note' }, 'Sample data for the pitch preview.')),
+        h('p', { class: 'note' }, 'Sample data for the pitch preview.'))),
     ];
   }
 
@@ -403,6 +405,19 @@
     $('#screen').replaceChildren(...[fn(arg)].flat().filter(Boolean));
     document.querySelectorAll('.tabs a').forEach((a) => (a.dataset.tab === (desk ? tab : TABS[tab]) ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current')));
     document.title = ({ home: 'LEON’S', dogs: 'My dogs · LEON’S', dog: 'Dog · LEON’S', book: 'Book a visit · LEON’S', messages: 'Messages · LEON’S', today: 'Today · LEON’S' })[r] || 'LEON’S';
+  }
+  // Opening splash. It lives in the page once, so tapping Home later never brings it back.
+  const splash = document.getElementById('splash');
+  if (splash) {
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const opensOnHome = ['', '#', '#/', '#/home'].includes(location.hash);
+    if (reduce || !opensOnHome) splash.remove();
+    else {
+      const done = () => splash.remove();
+      splash.addEventListener('animationend', (e) => { if (e.animationName === 'splash-out') done(); });
+      splash.addEventListener('click', done);
+      setTimeout(done, 4500);
+    }
   }
   addEventListener('hashchange', () => { render(); scrollTo(0, 0); $('#screen').focus({ preventScroll: true }); });
   render();
