@@ -42,7 +42,7 @@ button{font:inherit;color:inherit}
 .home-brand{display:flex;align-items:center;gap:var(--leons-space-3);font-family:var(--leons-font-display);font-size:30px;line-height:1;letter-spacing:.01em}
 .home-top img{height:28px;width:auto}.home-top .label{color:var(--leons-tan)}
 .pass-photo{height:clamp(340px,56vh,500px);background:var(--photo);overflow:hidden}
-.pass-photo .photo{filter:grayscale(1) contrast(1.15);object-position:center 6%}
+.pass-photo .photo{object-position:center 6%}
 .hatch{height:12px}
 .welcome{padding:var(--leons-space-6) var(--leons-space-4) var(--leons-space-2)}
 .welcome h1{font-family:var(--leons-font-display);font-weight:400;font-size:clamp(48px,14vw,64px);line-height:.95;text-transform:uppercase;letter-spacing:.01em}
