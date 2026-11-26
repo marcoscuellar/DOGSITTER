@@ -95,7 +95,7 @@
   const field = (label, input) => h('label', { class: 'field' }, label, input);
 
   // ---------- pieces ----------
-  const hero = ({ img, pos, hh, title, sub, back, action, tag, size, hint }) => h('div', { class: 'hero', style: `--hh:${typeof hh === 'string' ? hh : (hh || 400) + 'px'};--pos:${pos || '76% 25%'}` },
+  const hero = ({ img, pos, hh, title, sub, back, action, tag, size, hint, cls }) => h('div', { class: 'hero' + (cls ? ' ' + cls : ''), style: `--hh:${typeof hh === 'string' ? hh : (hh || 400) + 'px'};--pos:${pos || '76% 25%'}` },
     h('img', { src: img, alt: '' }),
     back && h('a', { class: 'circle', href: back, 'aria-label': 'Back' }, ic('aback')),
     tag && h('span', { class: 'pill tag' }, tag),
@@ -117,7 +117,7 @@
     const tile = (href, cls, icon, name, sub) => h('a', { class: 'tile ' + cls, href }, ic(icon), h('span', {}, h('b', {}, name), h('i', {}, sub)));
     return [
       h('div', { class: 'home-logo' }, h('img', { src: 'logos/leons-logo-primary-dark.svg', alt: 'LEON’S Hotel & Day Club' })),
-      hero({ img: 'photos/dog-golden-sitting.webp', pos: '50% 12%', hh: 'calc(100dvh - 86px - 84px)', hint: true, size: 'clamp(40px,12.5vw,54px)', title: ['Welcome back,', h('br'), `${(S.profile.name || '').split(' ')[0] || '[NAME]'}.`], sub: 'Your dog is on the list.' }),
+      hero({ img: 'photos/dog-golden-sitting.webp', pos: '50% 12%', hh: 'calc(100dvh - 86px - 84px - 14px)', hint: true, cls: 'inset', size: 'clamp(40px,12.5vw,54px)', title: ['Welcome back,', h('br'), `${(S.profile.name || '').split(' ')[0] || '[NAME]'}.`], sub: 'Your dog is on the list.' }),
       stats([[String(S.dogs.length), 'Dogs'], [nextDay(), 'Next visit'], [String(S.unread || 0), 'Unread']]),
       h('div', { class: 'body' },
         h('div', { class: 'tiles' },

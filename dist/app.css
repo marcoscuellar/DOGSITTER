@@ -205,3 +205,9 @@ body.home .stats{margin-top:18px}
 .tile.mid{background:#1B3355;color:var(--cream)}
 .t-navy .sec-head h2{color:var(--cream)}
 .t-navy .body>.note{color:var(--cream);opacity:.8}
+
+/* Home: dark page all the way out to the edges, photo sits inside it as a rounded card */
+.hero.inset{margin:0 16px;border-radius:28px}
+body.home{background:var(--navy)}
+html:has(body.home){background:var(--navy)}
+body.home .app{box-shadow:none}
