@@ -40,7 +40,7 @@ button{font:inherit;color:inherit}
 /* Home */
 .hero{position:relative;display:flex;flex-direction:column;background:var(--leons-ink);color:var(--leons-bone)}
 .hero-brand{text-align:center;padding:var(--leons-space-5) 0 var(--leons-space-4)}
-.hero-photo{height:min(380px,48vh);background:var(--photo);overflow:hidden}
+.hero-photo{aspect-ratio:822/900;background:var(--photo);overflow:hidden}
 .hero-brand img{width:44px;height:auto}
 .hero-brand .name{font-family:var(--leons-font-display);font-size:34px;line-height:1;text-transform:uppercase;margin-top:var(--leons-space-1)}
 .hero-brand .label{letter-spacing:.3em;margin-top:var(--leons-space-1)}
