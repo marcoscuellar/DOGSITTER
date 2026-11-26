@@ -111,7 +111,7 @@
     const st = S.stays[d.id];
     const facts = [['Breed', d.breed], ['Age', d.age], ['Weight', d.weight], ['Vet', d.vet], ['Personality', d.personality], ['Likes', d.likes]];
     const pass = h('div', { class: 'dog-pass' },
-      h('div', { class: 'pass-top' }, h('b', {}, 'Guest pass'), h('span', { class: 'slot' })),
+      h('div', { class: 'pass-top' }, h('b', {}, `Member № ${String(S.dogs.indexOf(d) + 1).padStart(4, '0')}`), h('span', { class: 'slot' })),
       h('div', { class: 'pass-photo' }, h('img', { src: src(d), class: d.photo ? '' : 'art', alt: `${d.name}, ${d.breed}` })),
       h('div', { class: 'pass-bottom' }, h('div', {},
         h('span', { class: 'label' }, 'Guest'), h('h2', {}, d.name),
@@ -229,7 +229,7 @@
     $('#date').textContent = new Date().toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' });
     const hf = $('#host-face');
     hf.replaceChildren(S.hostPhoto ? h('img', { src: S.hostPhoto, alt: 'Leo' }) : 'L');
-    document.title = `Leo’s Services · ${S.role === 'desk' ? 'Care desk' : 'My dogs'}`;
+    document.title = `LEON’S · ${S.role === 'desk' ? 'Care desk' : 'My dogs'}`;
     if (S.role === 'owner') renderOwner();
     else { const v = S.visits.find((x) => x.id === S.visit); v ? visitView(v) : today_(); }
     $('#title').focus({ preventScroll: true });
